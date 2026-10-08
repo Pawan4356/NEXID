@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const validator = require("validator");
 
 const userRouter = express.Router();
 userRouter.use(express.json());
@@ -21,8 +22,11 @@ userRouter.get("/me", userAuth, async (req, res) => {
 
 userRouter.patch("/update", userAuth, async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user._id;
+    console.log(req.user);
+    console.log(userId);
     const data = req.body;
+    console.log(data);
     if (!data || Object.keys(data).length === 0) {
       return res.status(400).send("Bad Request...");
     }
@@ -53,10 +57,13 @@ userRouter.patch("/changePassword", userAuth, async (req, res) => {
     const oldPasswordHash = req.user.password;
     const { oldPassword, newPassword } = req.body;
     if (!oldPassword || !newPassword) {
-      return res.status(400).send("Bad Request...");
+      return res.status(400).send("Enter the new and the old password...");
     }
-    if (!validateOldPassword(oldPassword, oldPasswordHash)) {
-      return res.status(400).send("Bad Request...");
+    if (!validator.isStrongPassword(newPassword)) {
+      return res.status(400).send("Enter a new strong password...");
+    }
+    if (!(await validateOldPassword(oldPassword, oldPasswordHash))) {
+      return res.status(400).send("Enter correct old password...");
     }
     const newPasswordHash = await encryptPassword(newPassword);
     const user = await User.findByIdAndUpdate(req.user._id, {
@@ -66,6 +73,24 @@ userRouter.patch("/changePassword", userAuth, async (req, res) => {
     res.status(200).send(user);
   } catch (err) {
     console.log("> Error: " + err.message);
+    res.status(500).send("Something went wrong...");
+  }
+});
+
+userRouter.get("/users", async (req, res) => {
+  try {
+    const { name } = req.query;
+    const filter = {};
+    if (name) {
+      filter.name = { $regex: `^${name}`, $options: "i" };
+    }
+    const users = await User.find(filter).select("-password"); // Excludes Passwords
+    if (users.length === 0) {
+      return res.status(404).send("No User found...");
+    }
+    res.status(200).send(users);
+  } catch (err) {
+    console.log("> Error:", err.message);
     res.status(500).send("Something went wrong...");
   }
 });
@@ -85,27 +110,6 @@ userRouter.get("/:userId", async (req, res) => {
     if (err.name === "CastError") {
       return res.status(400).send("Something Went wrong");
     }
-    res.status(500).send("Something went wrong...");
-  }
-});
-
-userRouter.get("/users", async (req, res) => {
-  const { name, email } = req.query;
-  const filter = {};
-  if (name) {
-    filter.name = { $regex: `^${name}`, $options: "i" };
-  }
-  if (email) {
-    filter.email = email;
-  }
-  try {
-    const users = await User.find(filter).select("-password"); // Excludes Passwords
-    if (!users) {
-      return res.status(404).send("No User found...");
-    }
-    res.status(200).send(users);
-  } catch (err) {
-    console.log("> Error:", err.message);
     res.status(500).send("Something went wrong...");
   }
 });

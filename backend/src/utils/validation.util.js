@@ -19,8 +19,8 @@ const validateSignUpData = (req) => {
   }
 };
 
-const validateOldPassword = (oldPassword, oldPasswordHash) => {
-  return bcrypt.compare(oldPassword, oldPasswordHash);
+const validateOldPassword = async (oldPassword, oldPasswordHash) => {
+  return await bcrypt.compare(oldPassword, oldPasswordHash);
 };
 
 module.exports = {

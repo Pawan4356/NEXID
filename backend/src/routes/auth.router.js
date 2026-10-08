@@ -17,9 +17,7 @@ const {
 authRouter.post("/signup", async (req, res) => {
   // const dummyUserObj = { name: "Naman", email: "naman123@gmail.com", password: "hkdnfnewofnrwov*kd", bio: "Mellow!!" };
   try {
-    console.log("before validation");
     validateSignUpData(req);
-    console.log("after validation");
     const password = req.body.password;
     if (!password) {
       res.status(400).send("Bad request!");
@@ -36,13 +34,18 @@ authRouter.post("/signup", async (req, res) => {
       bio,
     });
     await user.save();
+    const userWithId = await User.findOne({ email: email });
+    const token = userWithId.getJWT(ENV.JWT_SECRET_KEY);
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 3 * 3600000),
+    });
     console.log("> User added successfully...");
     res.status(201).send("User added successfully...");
   } catch (err) {
     console.log("> Error: " + err.message);
     res.status(400).send("Something Went wrong: " + err.message);
   }
-}); 
+});
 
 authRouter.post("/login", async (req, res) => {
   try {
