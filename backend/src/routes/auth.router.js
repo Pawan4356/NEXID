@@ -6,72 +6,43 @@ const authRouter = express.Router();
 authRouter.use(express.json());
 authRouter.use(cookieParser());
 
-const ENV = require("../config/env");
-const User = require("../models/user");
+const ENV = require("../config/env.config");
+const User = require("../models/user.model");
 const {
   validateSignUpData,
   validateEmail,
   encryptPassword,
 } = require("../utils");
 
-// authRouter.post("/signup", async (req, res) => {
-//   // const dummyUserObj = { name: "Naman", email: "naman123@gmail.com", password: "hkdnfnewofnrwov*kd", bio: "Mellow!!" };
-//   try {
-//     validateSignUpData(req);
-//     const password = await encryptPassword(req);
-//     const { name, avatar, email, age, gender, bio } = req.body;
-//     const user = new User({
-//       name,
-//       avatar,
-//       email,
-//       password,
-//       age,
-//       gender,
-//       bio,
-//     });
-//     await user.save();
-//     console.log("> User added successfully...");
-//     res.status(201).send("User added successfully...");
-//   } catch (err) {
-//     console.log("> Error: " + err.message);
-//     res.status(400).send("Something Went wrong: " + err.message);
-//   }
-// });
-
 authRouter.post("/signup", async (req, res) => {
+  // const dummyUserObj = { name: "Naman", email: "naman123@gmail.com", password: "hkdnfnewofnrwov*kd", bio: "Mellow!!" };
   try {
-    console.log("1. Request received");
-
+    console.log("before validation");
     validateSignUpData(req);
-    console.log("2. Validation passed");
-
-    const password = await encryptPassword(req);
-    console.log("3. Password encrypted");
-
+    console.log("after validation");
+    const password = req.body.password;
+    if (!password) {
+      res.status(400).send("Bad request!");
+    }
+    const encPassword = await encryptPassword(password);
     const { name, avatar, email, age, gender, bio } = req.body;
-
     const user = new User({
       name,
       avatar,
       email,
-      password,
+      password: encPassword,
       age,
       gender,
       bio,
     });
-
-    console.log("4. User object created");
-
     await user.save();
-    console.log("5. User saved");
-
+    console.log("> User added successfully...");
     res.status(201).send("User added successfully...");
-    console.log("6. Response sent");
   } catch (err) {
-    console.log("> Error:", err);
-    res.status(400).send("Something went wrong: " + err.message);
+    console.log("> Error: " + err.message);
+    res.status(400).send("Something Went wrong: " + err.message);
   }
-});
+}); 
 
 authRouter.post("/login", async (req, res) => {
   try {
@@ -113,6 +84,6 @@ authRouter.post("/logout", async (req, res) => {
     .send();
 });
 
-// authRouter.post("/refresh", async (req, res) => {});
+authRouter.post("/refresh", async (req, res) => {});
 
 module.exports = authRouter;

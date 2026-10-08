@@ -5,9 +5,9 @@ const userRouter = express.Router();
 userRouter.use(express.json());
 userRouter.use(cookieParser());
 
-const User = require("../models/user");
+const User = require("../models/user.model");
 const { encryptPassword, validateOldPassword } = require("../utils");
-const { userAuth } = require("../middleware/auth");
+const { userAuth } = require("../middleware/auth.middleware");
 
 userRouter.get("/me", userAuth, async (req, res) => {
   try {

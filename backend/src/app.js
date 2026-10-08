@@ -5,11 +5,11 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-const ENV = require("./config/env");
-const connectDB = require("./config/database");
+const ENV = require("./config/env.config");
+const connectDB = require("./config/database.config");
 
-const authRouter = require("./routes/auth");
-const userRouter = require("./routes/user");
+const authRouter = require("./routes/auth.router");
+const userRouter = require("./routes/user.router");
 
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
