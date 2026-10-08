@@ -8,11 +8,11 @@ app.use(cookieParser());
 const ENV = require("./config/env.config");
 const connectDB = require("./config/database.config");
 
-const authRouter = require("./routes/auth.router");
-const userRouter = require("./routes/user.router");
+const { authRouter, userRouter, followRouter } = require("./routes");
 
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
+app.use("/follow", followRouter);
 
 app.use("/", (req, res) => {
   res.send("Home!");

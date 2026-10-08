@@ -8,7 +8,7 @@ userRouter.use(cookieParser());
 
 const User = require("../models/user.model");
 const { encryptPassword, validateOldPassword } = require("../utils");
-const { userAuth } = require("../middleware/auth.middleware");
+const userAuth = require("../middleware/auth.middleware");
 
 userRouter.get("/me", userAuth, async (req, res) => {
   try {
