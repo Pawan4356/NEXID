@@ -27,8 +27,11 @@ followSchema.pre("validate", function () {
 });
 
 // This creates a compound index on: followerId + followingId
-// Same follower -> same following pair can exist only once
+// Prevent duplicate follow pairs 
+// And support queries by followerId
 followSchema.index({ followerId: 1, followingId: 1 }, { unique: true });
+// Support queries by followingId
+followSchema.index({ followingId: 1 });
 
 const Follow = mongoose.model("Follow", followSchema);
 module.exports = Follow;
