@@ -14,12 +14,16 @@ export const isStrongPassword = (p) => passwordRules.every((r) => r.test(p));
 export function validateProfile({ name, age, bio, avatar }) {
   const errors = {};
   const n = (name ?? "").trim();
-  if (n.length < 2 || n.length > 60) errors.name = "Name must be 2–60 characters.";
+  if (n.length < 2 || n.length > 60)
+    errors.name = "Name must be 2–60 characters.";
   if (age !== "" && age != null) {
     const a = Number(age);
-    if (!Number.isInteger(a) || a < 5 || a > 120) errors.age = "Age must be a whole number from 5 to 120.";
+    if (!Number.isInteger(a) || a < 5 || a > 120)
+      errors.age = "Age must be a whole number from 5 to 120.";
   }
-  if ((bio ?? "").length > 1024) errors.bio = "Bio can be at most 1024 characters.";
-  if (avatar && !/^https?:\/\//i.test(avatar)) errors.avatar = "Avatar must be an http(s) URL.";
+  if ((bio ?? "").length > 1024)
+    errors.bio = "Bio can be at most 1024 characters.";
+  if (avatar && !/^https?:\/\//i.test(avatar))
+    errors.avatar = "Avatar must be an http(s) URL.";
   return errors;
 }

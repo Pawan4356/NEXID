@@ -1,7 +1,17 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckSquare, FileText, Heading2, Lock, MessageSquare, MoreHorizontal, Plus, Smile, Star } from "lucide-react";
+import {
+  CheckSquare,
+  FileText,
+  Heading2,
+  Lock,
+  MessageSquare,
+  MoreHorizontal,
+  Plus,
+  Smile,
+  Star,
+} from "lucide-react";
 import { Topbar } from "../components/layout/Topbar";
 import { NoteActionsMenu } from "../components/notes/NoteActionsMenu";
 import { IconPicker } from "../components/notes/IconPicker";
@@ -10,8 +20,24 @@ import { ShareDialog } from "../components/sharing/ShareDialog";
 import { VISIBILITY } from "../components/sharing/visibility";
 import { PresenceAvatars } from "../components/collab/Presence";
 import { CommentsPanel } from "../components/collab/CommentsPanel";
-import { Button, EmptyState, IconButton, MenuLabel, MenuSeparator, MockBadge, Skeleton, Switch, Tooltip } from "../components/ui";
-import { useCreateNote, useMarkNoteViewed, useNote, useNoteTree, useUpdateNote } from "../hooks/useNotes";
+import {
+  Button,
+  EmptyState,
+  IconButton,
+  MenuLabel,
+  MenuSeparator,
+  MockBadge,
+  Skeleton,
+  Switch,
+  Tooltip,
+} from "../components/ui";
+import {
+  useCreateNote,
+  useMarkNoteViewed,
+  useNote,
+  useNoteTree,
+  useUpdateNote,
+} from "../hooks/useNotes";
 import { useComments } from "../hooks/useCollab";
 import { useAutosave } from "../hooks/useUtils";
 import { qk } from "../lib/queryKeys";
@@ -56,7 +82,8 @@ function AutoGrowTitle({ value, onChange, onEnter, readOnly }) {
 
 function SettingsItems({ note, setSettings }) {
   const s = note.settings;
-  const row = "flex h-8 items-center justify-between gap-4 rounded px-2 text-sm hover:bg-hover cursor-pointer";
+  const row =
+    "flex h-8 items-center justify-between gap-4 rounded px-2 text-sm hover:bg-hover cursor-pointer";
   return (
     <>
       <MenuLabel>Style</MenuLabel>
@@ -65,7 +92,10 @@ function SettingsItems({ note, setSettings }) {
           <button
             key={k}
             onClick={() => setSettings({ font: k })}
-            className={cn("flex flex-col items-center rounded-md py-1.5 hover:bg-hover", s.font === k && "text-accent")}
+            className={cn(
+              "flex flex-col items-center rounded-md py-1.5 hover:bg-hover",
+              s.font === k && "text-accent",
+            )}
             aria-pressed={s.font === k}
           >
             <span className="text-xl" style={{ fontFamily: f.css }}>
@@ -77,13 +107,28 @@ function SettingsItems({ note, setSettings }) {
       </div>
       <MenuSeparator />
       <label className={row}>
-        Small text <Switch checked={s.smallText} onChange={(v) => setSettings({ smallText: v })} label="Small text" />
+        Small text{" "}
+        <Switch
+          checked={s.smallText}
+          onChange={(v) => setSettings({ smallText: v })}
+          label="Small text"
+        />
       </label>
       <label className={row}>
-        Full width <Switch checked={s.fullWidth} onChange={(v) => setSettings({ fullWidth: v })} label="Full width" />
+        Full width{" "}
+        <Switch
+          checked={s.fullWidth}
+          onChange={(v) => setSettings({ fullWidth: v })}
+          label="Full width"
+        />
       </label>
       <label className={row}>
-        Lock page <Switch checked={s.locked} onChange={(v) => setSettings({ locked: v })} label="Lock page" />
+        Lock page{" "}
+        <Switch
+          checked={s.locked}
+          onChange={(v) => setSettings({ locked: v })}
+          label="Lock page"
+        />
       </label>
       <MenuSeparator />
     </>
@@ -97,9 +142,15 @@ function SubPages({ parentId }) {
   return (
     <div className="mt-6 px-[54px] max-sm:px-6">
       {kids.map((k) => (
-        <Link key={k.id} to={`/notes/${k.id}`} className="flex items-center gap-2 rounded px-1 py-1 text-[15px] hover:bg-hover">
+        <Link
+          key={k.id}
+          to={`/notes/${k.id}`}
+          className="flex items-center gap-2 rounded px-1 py-1 text-[15px] hover:bg-hover"
+        >
           <span>{k.icon}</span>
-          <span className="border-b border-line-strong font-medium">{k.title || "Untitled"}</span>
+          <span className="border-b border-line-strong font-medium">
+            {k.title || "Untitled"}
+          </span>
         </Link>
       ))}
     </div>
@@ -117,8 +168,12 @@ function NoteView({ note }) {
   const comments = useComments("note", note.id);
   const [title, setTitle] = useState(note.title);
   const [showComments, setShowComments] = useState(false);
-  const [wordCount, setWordCount] = useState(() => blocksToText(note.content).split(/\s+/).filter(Boolean).length);
-  const autosave = useAutosave((patch) => update.mutateAsync({ id: note.id, patch }));
+  const [wordCount, setWordCount] = useState(
+    () => blocksToText(note.content).split(/\s+/).filter(Boolean).length,
+  );
+  const autosave = useAutosave((patch) =>
+    update.mutateAsync({ id: note.id, patch }),
+  );
   const locked = note.settings.locked;
   const openComments = (comments.data ?? []).filter((c) => !c.resolved).length;
 
@@ -129,7 +184,9 @@ function NoteView({ note }) {
   const onTitle = (v) => {
     setTitle(v);
     // Reflect the new title in the sidebar immediately; persistence is debounced.
-    qc.setQueryData(qk.notes, (list) => list?.map((n) => (n.id === note.id ? { ...n, title: v } : n)));
+    qc.setQueryData(qk.notes, (list) =>
+      list?.map((n) => (n.id === note.id ? { ...n, title: v } : n)),
+    );
     autosave.schedule({ title: v });
   };
 
@@ -138,21 +195,37 @@ function NoteView({ note }) {
     autosave.schedule({ content: blocks });
   };
 
-  const setSettings = (patch) => update.mutate({ id: note.id, patch: { settings: patch } });
-  const setVisibility = (visibility) => update.mutate({ id: note.id, patch: { visibility } });
+  const setSettings = (patch) =>
+    update.mutate({ id: note.id, patch: { settings: patch } });
+  const setVisibility = (visibility) =>
+    update.mutate({ id: note.id, patch: { visibility } });
 
-  const crumbs = [...ancestors(note.id), { ...note, title }].map((n) => ({ to: n.id === note.id ? undefined : `/notes/${n.id}`, label: n.title || "Untitled", icon: n.icon }));
+  const crumbs = [...ancestors(note.id), { ...note, title }].map((n) => ({
+    to: n.id === note.id ? undefined : `/notes/${n.id}`,
+    label: n.title || "Untitled",
+    icon: n.icon,
+  }));
   const V = VISIBILITY[note.visibility];
-  const width = note.settings.fullWidth ? "max-w-none px-6 sm:px-16" : "max-w-[816px]";
+  const width = note.settings.fullWidth
+    ? "max-w-none px-6 sm:px-16"
+    : "max-w-[816px]";
   const font = FONTS[note.settings.font]?.css;
 
-  const addSubPage = () => createNote.mutate({ parentId: note.id }, { onSuccess: (n) => navigate(`/notes/${n.id}`) });
+  const addSubPage = () =>
+    createNote.mutate(
+      { parentId: note.id },
+      { onSuccess: (n) => navigate(`/notes/${n.id}`) },
+    );
 
   return (
     <div className="flex h-full min-h-0">
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar crumbs={crumbs}>
-          <SaveStatus status={autosave.status} updatedAt={note.updatedAt} onRetry={autosave.flush} />
+          <SaveStatus
+            status={autosave.status}
+            updatedAt={note.updatedAt}
+            onRetry={autosave.flush}
+          />
           <span className="mx-1" />
           <PresenceAvatars resourceType="note" resource={note} />
           <ShareDialog
@@ -167,7 +240,12 @@ function NoteView({ note }) {
           />
           <Tooltip content="Comments">
             <span className="relative">
-              <IconButton icon={MessageSquare} label="Comments" active={showComments} onClick={() => setShowComments((s) => !s)} />
+              <IconButton
+                icon={MessageSquare}
+                label="Comments"
+                active={showComments}
+                onClick={() => setShowComments((s) => !s)}
+              />
               {openComments > 0 && (
                 <span className="pointer-events-none absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-accent text-[9px] font-semibold text-white">
                   {openComments}
@@ -177,15 +255,31 @@ function NoteView({ note }) {
           </Tooltip>
           <IconButton
             icon={Star}
-            label={note.isFavorite ? "Remove from favorites" : "Add to favorites"}
-            className={note.isFavorite ? "text-warning [&_svg]:fill-current" : ""}
-            onClick={() => update.mutate({ id: note.id, patch: { isFavorite: !note.isFavorite } })}
+            label={
+              note.isFavorite ? "Remove from favorites" : "Add to favorites"
+            }
+            className={
+              note.isFavorite ? "text-warning [&_svg]:fill-current" : ""
+            }
+            onClick={() =>
+              update.mutate({
+                id: note.id,
+                patch: { isFavorite: !note.isFavorite },
+              })
+            }
           />
           <NoteActionsMenu
             note={note}
             align="end"
-            onRename={() => document.querySelector("[data-page-title]")?.focus()}
-            trigger={<IconButton icon={MoreHorizontal} label="Page settings and actions" />}
+            onRename={() =>
+              document.querySelector("[data-page-title]")?.focus()
+            }
+            trigger={
+              <IconButton
+                icon={MoreHorizontal}
+                label="Page settings and actions"
+              />
+            }
             extra={
               <>
                 <MenuSeparator />
@@ -203,9 +297,15 @@ function NoteView({ note }) {
             <div className="group px-[54px] max-sm:px-6">
               <IconPicker
                 value={note.icon}
-                onChange={(icon) => update.mutate({ id: note.id, patch: { icon } })}
+                onChange={(icon) =>
+                  update.mutate({ id: note.id, patch: { icon } })
+                }
                 trigger={
-                  <button className="-ml-1 mb-2 flex size-[78px] items-center justify-center rounded-md text-[64px] leading-none hover:bg-hover" aria-label="Change icon" disabled={locked}>
+                  <button
+                    className="-ml-1 mb-2 flex size-[78px] items-center justify-center rounded-md text-[64px] leading-none hover:bg-hover"
+                    aria-label="Change icon"
+                    disabled={locked}
+                  >
                     {note.icon}
                   </button>
                 }
@@ -213,18 +313,30 @@ function NoteView({ note }) {
               <div className="mb-1 flex h-7 items-center gap-1 text-muted opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                 <IconPicker
                   value={note.icon}
-                  onChange={(icon) => update.mutate({ id: note.id, patch: { icon } })}
+                  onChange={(icon) =>
+                    update.mutate({ id: note.id, patch: { icon } })
+                  }
                   trigger={
                     <Button size="sm" variant="ghost" icon={Smile}>
                       Change icon
                     </Button>
                   }
                 />
-                <Button size="sm" variant="ghost" icon={MessageSquare} onClick={() => setShowComments(true)}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  icon={MessageSquare}
+                  onClick={() => setShowComments(true)}
+                >
                   Add comment
                 </Button>
               </div>
-              <AutoGrowTitle value={title} onChange={onTitle} onEnter={() => editorRef.current?.focusStart()} readOnly={locked} />
+              <AutoGrowTitle
+                value={title}
+                onChange={onTitle}
+                onEnter={() => editorRef.current?.focusStart()}
+                readOnly={locked}
+              />
               <div className="mt-2 mb-4 flex flex-wrap items-center gap-2 text-xs text-muted">
                 <span className="inline-flex items-center gap-1">
                   <V.icon className="size-3.5" /> {V.label}
@@ -238,7 +350,13 @@ function NoteView({ note }) {
               </div>
             </div>
 
-            <div className="nexid-editor" style={{ "--editor-font": font, "--editor-size": note.settings.smallText ? "14px" : "16px" }}>
+            <div
+              className="nexid-editor"
+              style={{
+                "--editor-font": font,
+                "--editor-size": note.settings.smallText ? "14px" : "16px",
+              }}
+            >
               <Suspense
                 fallback={
                   <div className="space-y-3 px-[54px] max-sm:px-6">
@@ -248,19 +366,49 @@ function NoteView({ note }) {
                   </div>
                 }
               >
-                <NoteEditor ref={editorRef} initialContent={note.content} editable={!locked} onChange={onContent} />
+                <NoteEditor
+                  ref={editorRef}
+                  initialContent={note.content}
+                  editable={!locked}
+                  onChange={onContent}
+                />
                 {!locked && (
                   <div className="mt-3 flex flex-wrap gap-1 px-[54px] max-sm:px-6">
-                    <Button size="sm" variant="ghost" icon={FileText} onClick={() => editorRef.current?.addBlock("paragraph")}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      icon={FileText}
+                      onClick={() => editorRef.current?.addBlock("paragraph")}
+                    >
                       Text
                     </Button>
-                    <Button size="sm" variant="ghost" icon={CheckSquare} onClick={() => editorRef.current?.addBlock("checkListItem")}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      icon={CheckSquare}
+                      onClick={() =>
+                        editorRef.current?.addBlock("checkListItem")
+                      }
+                    >
                       To-do
                     </Button>
-                    <Button size="sm" variant="ghost" icon={Heading2} onClick={() => editorRef.current?.addBlock("heading", { level: 2 })}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      icon={Heading2}
+                      onClick={() =>
+                        editorRef.current?.addBlock("heading", { level: 2 })
+                      }
+                    >
                       Heading
                     </Button>
-                    <Button size="sm" variant="ghost" icon={Plus} onClick={addSubPage} loading={createNote.isPending}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      icon={Plus}
+                      onClick={addSubPage}
+                      loading={createNote.isPending}
+                    >
                       Sub-page
                     </Button>
                   </div>
@@ -274,7 +422,11 @@ function NoteView({ note }) {
       </div>
       {showComments && (
         <div className="max-sm:fixed max-sm:inset-0 max-sm:z-40 max-sm:flex">
-          <CommentsPanel resourceType="note" resourceId={note.id} onClose={() => setShowComments(false)} />
+          <CommentsPanel
+            resourceType="note"
+            resourceId={note.id}
+            onClose={() => setShowComments(false)}
+          />
         </div>
       )}
     </div>

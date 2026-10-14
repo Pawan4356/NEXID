@@ -1,4 +1,12 @@
-import { Circle, CircleCheck, CircleDot, SignalHigh, SignalLow, SignalMedium, TriangleAlert } from "lucide-react";
+import {
+  Circle,
+  CircleCheck,
+  CircleDot,
+  SignalHigh,
+  SignalLow,
+  SignalMedium,
+  TriangleAlert,
+} from "lucide-react";
 
 export const STATUS = {
   todo: { label: "To do", icon: Circle, tone: "default" },

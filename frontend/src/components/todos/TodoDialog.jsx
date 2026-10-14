@@ -5,7 +5,14 @@ import { useNotes } from "../../hooks/useNotes";
 import { useTodoMutations } from "../../hooks/useTodos";
 import { PRIORITY, STATUS } from "./meta";
 
-const EMPTY = { title: "", description: "", status: "todo", priority: "medium", dueDate: "", noteId: "" };
+const EMPTY = {
+  title: "",
+  description: "",
+  status: "todo",
+  priority: "medium",
+  dueDate: "",
+  noteId: "",
+};
 
 /** Create (todo = null) or edit a task. */
 export function TodoDialog({ open, onOpenChange, todo, defaults }) {
@@ -17,7 +24,16 @@ export function TodoDialog({ open, onOpenChange, todo, defaults }) {
   useEffect(() => {
     if (!open) return;
     setError(null);
-    setForm(todo ? { ...EMPTY, ...todo, dueDate: todo.dueDate ?? "", noteId: todo.noteId ?? "" } : { ...EMPTY, ...defaults });
+    setForm(
+      todo
+        ? {
+            ...EMPTY,
+            ...todo,
+            dueDate: todo.dueDate ?? "",
+            noteId: todo.noteId ?? "",
+          }
+        : { ...EMPTY, ...defaults },
+    );
     // Reset only when the dialog opens or switches task, not on every parent render.
   }, [open, todo?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -49,12 +65,33 @@ export function TodoDialog({ open, onOpenChange, todo, defaults }) {
   };
 
   return (
-    <Modal open={open} onOpenChange={onOpenChange} title={todo ? "Edit task" : "New task"}>
+    <Modal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={todo ? "Edit task" : "New task"}
+    >
       <form onSubmit={submit} className="space-y-4 px-5 py-4">
         <Field label="Title" error={error}>
-          {(p) => <Input {...p} autoFocus value={form.title} onChange={set("title")} placeholder="e.g. Draft Note mongoose schema" />}
+          {(p) => (
+            <Input
+              {...p}
+              autoFocus
+              value={form.title}
+              onChange={set("title")}
+              placeholder="e.g. Draft Note mongoose schema"
+            />
+          )}
         </Field>
-        <Field label="Description">{(p) => <Textarea {...p} value={form.description} onChange={set("description")} placeholder="Add details…" />}</Field>
+        <Field label="Description">
+          {(p) => (
+            <Textarea
+              {...p}
+              value={form.description}
+              onChange={set("description")}
+              placeholder="Add details…"
+            />
+          )}
+        </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Status">
             {(p) => (
@@ -78,7 +115,16 @@ export function TodoDialog({ open, onOpenChange, todo, defaults }) {
               </Select>
             )}
           </Field>
-          <Field label="Due date">{(p) => <Input {...p} type="date" value={form.dueDate} onChange={set("dueDate")} />}</Field>
+          <Field label="Due date">
+            {(p) => (
+              <Input
+                {...p}
+                type="date"
+                value={form.dueDate}
+                onChange={set("dueDate")}
+              />
+            )}
+          </Field>
           <Field label="Linked page">
             {(p) => (
               <Select {...p} value={form.noteId} onChange={set("noteId")}>
@@ -94,7 +140,12 @@ export function TodoDialog({ open, onOpenChange, todo, defaults }) {
         </div>
         <div className="flex items-center gap-2 pt-1">
           {todo && (
-            <Button variant="danger-ghost" icon={Trash2} onClick={onDelete} loading={remove.isPending}>
+            <Button
+              variant="danger-ghost"
+              icon={Trash2}
+              onClick={onDelete}
+              loading={remove.isPending}
+            >
               Delete
             </Button>
           )}
@@ -102,7 +153,11 @@ export function TodoDialog({ open, onOpenChange, todo, defaults }) {
             <Button variant="ghost" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={create.isPending || update.isPending}>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={create.isPending || update.isPending}
+            >
               {todo ? "Save" : "Create task"}
             </Button>
           </div>

@@ -1,17 +1,46 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { Copy, Download, FileJson, Image, MessageSquare, MoreHorizontal, PenTool, Star, Trash2 } from "lucide-react";
+import {
+  Copy,
+  Download,
+  FileJson,
+  Image,
+  MessageSquare,
+  MoreHorizontal,
+  PenTool,
+  Star,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Topbar } from "../components/layout/Topbar";
 import { SaveStatus } from "../components/notes/SaveStatus";
 import { ShareDialog } from "../components/sharing/ShareDialog";
 import { PresenceAvatars } from "../components/collab/Presence";
 import { CommentsPanel } from "../components/collab/CommentsPanel";
-import { Button, ConfirmDialog, EmptyState, IconButton, Menu, MenuContent, MenuItem, MenuLabel, MenuSeparator, MenuTrigger, MockBadge, Spinner } from "../components/ui";
-import { useDiagram, useDiagramMutations, useDiagrams } from "../hooks/useDiagrams";
+import {
+  Button,
+  ConfirmDialog,
+  EmptyState,
+  IconButton,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuLabel,
+  MenuSeparator,
+  MenuTrigger,
+  MockBadge,
+  Spinner,
+} from "../components/ui";
+import {
+  useDiagram,
+  useDiagramMutations,
+  useDiagrams,
+} from "../hooks/useDiagrams";
 import { useAutosave } from "../hooks/useUtils";
 
-const DiagramCanvas = lazy(() => import("../components/diagrams/DiagramCanvas"));
+const DiagramCanvas = lazy(
+  () => import("../components/diagrams/DiagramCanvas"),
+);
 
 function DiagramEditor({ diagram }) {
   const navigate = useNavigate();
@@ -23,7 +52,10 @@ function DiagramEditor({ diagram }) {
   const [title, setTitle] = useState(diagram.title);
   const [showComments, setShowComments] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const autosave = useAutosave((patch) => update.mutateAsync({ id: diagram.id, patch }), 900);
+  const autosave = useAutosave(
+    (patch) => update.mutateAsync({ id: diagram.id, patch }),
+    900,
+  );
 
   useEffect(() => {
     markViewed.mutate(diagram.id);
@@ -40,14 +72,28 @@ function DiagramEditor({ diagram }) {
   return (
     <div className="flex h-full min-h-0">
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar crumbs={[{ label: "Diagrams", to: "/diagrams", icon: <PenTool className="size-4" /> }]}>
-          <SaveStatus status={autosave.status} updatedAt={meta.updatedAt} onRetry={autosave.flush} />
+        <Topbar
+          crumbs={[
+            {
+              label: "Diagrams",
+              to: "/diagrams",
+              icon: <PenTool className="size-4" />,
+            },
+          ]}
+        >
+          <SaveStatus
+            status={autosave.status}
+            updatedAt={meta.updatedAt}
+            onRetry={autosave.flush}
+          />
           <span className="mx-1" />
           <PresenceAvatars resourceType="diagram" resource={meta} />
           <ShareDialog
             resourceType="diagram"
             resource={meta}
-            onVisibilityChange={(visibility) => update.mutate({ id: diagram.id, patch: { visibility } })}
+            onVisibilityChange={(visibility) =>
+              update.mutate({ id: diagram.id, patch: { visibility } })
+            }
             trigger={
               <Button size="sm" variant="ghost" className="text-fg">
                 Share
@@ -56,7 +102,12 @@ function DiagramEditor({ diagram }) {
           />
           <Menu>
             <MenuTrigger>
-              <Button size="sm" variant="ghost" icon={Download} className="text-fg">
+              <Button
+                size="sm"
+                variant="ghost"
+                icon={Download}
+                className="text-fg"
+              >
                 <span className="max-sm:hidden">Export</span>
               </Button>
             </MenuTrigger>
@@ -68,28 +119,56 @@ function DiagramEditor({ diagram }) {
               <MenuItem icon={Image} onSelect={runExport("exportSvg", "SVG")}>
                 SVG image
               </MenuItem>
-              <MenuItem icon={FileJson} onSelect={runExport("exportJson", "JSON")}>
+              <MenuItem
+                icon={FileJson}
+                onSelect={runExport("exportJson", "JSON")}
+              >
                 Excalidraw file (.excalidraw)
               </MenuItem>
             </MenuContent>
           </Menu>
-          <IconButton icon={MessageSquare} label="Comments" active={showComments} onClick={() => setShowComments((s) => !s)} />
+          <IconButton
+            icon={MessageSquare}
+            label="Comments"
+            active={showComments}
+            onClick={() => setShowComments((s) => !s)}
+          />
           <IconButton
             icon={Star}
-            label={meta.isFavorite ? "Remove from favorites" : "Add to favorites"}
-            className={meta.isFavorite ? "text-warning [&_svg]:fill-current" : ""}
-            onClick={() => update.mutate({ id: diagram.id, patch: { isFavorite: !meta.isFavorite } })}
+            label={
+              meta.isFavorite ? "Remove from favorites" : "Add to favorites"
+            }
+            className={
+              meta.isFavorite ? "text-warning [&_svg]:fill-current" : ""
+            }
+            onClick={() =>
+              update.mutate({
+                id: diagram.id,
+                patch: { isFavorite: !meta.isFavorite },
+              })
+            }
           />
           <Menu>
             <MenuTrigger>
               <IconButton icon={MoreHorizontal} label="Diagram actions" />
             </MenuTrigger>
             <MenuContent align="end">
-              <MenuItem icon={Copy} onSelect={() => duplicate.mutate(diagram.id, { onSuccess: (d) => navigate(`/diagrams/${d.id}`) })}>
+              <MenuItem
+                icon={Copy}
+                onSelect={() =>
+                  duplicate.mutate(diagram.id, {
+                    onSuccess: (d) => navigate(`/diagrams/${d.id}`),
+                  })
+                }
+              >
                 Duplicate
               </MenuItem>
               <MenuSeparator />
-              <MenuItem icon={Trash2} danger onSelect={() => setConfirmDelete(true)}>
+              <MenuItem
+                icon={Trash2}
+                danger
+                onSelect={() => setConfirmDelete(true)}
+              >
                 Delete
               </MenuItem>
             </MenuContent>
@@ -118,13 +197,21 @@ function DiagramEditor({ diagram }) {
               </div>
             }
           >
-            <DiagramCanvas ref={canvasRef} diagram={diagram} onSceneChange={(scene) => autosave.schedule({ scene })} />
+            <DiagramCanvas
+              ref={canvasRef}
+              diagram={diagram}
+              onSceneChange={(scene) => autosave.schedule({ scene })}
+            />
           </Suspense>
         </div>
       </div>
       {showComments && (
         <div className="max-sm:fixed max-sm:inset-0 max-sm:z-40 max-sm:flex">
-          <CommentsPanel resourceType="diagram" resourceId={diagram.id} onClose={() => setShowComments(false)} />
+          <CommentsPanel
+            resourceType="diagram"
+            resourceId={diagram.id}
+            onClose={() => setShowComments(false)}
+          />
         </div>
       )}
       <ConfirmDialog
@@ -160,7 +247,10 @@ export default function DiagramPage() {
           title="This diagram doesn't exist"
           description="It may have been deleted, or it was created in another browser."
           action={
-            <Link to="/diagrams" className="text-sm text-accent hover:underline">
+            <Link
+              to="/diagrams"
+              className="text-sm text-accent hover:underline"
+            >
               All diagrams
             </Link>
           }

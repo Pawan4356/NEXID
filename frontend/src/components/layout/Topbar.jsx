@@ -10,8 +10,18 @@ export function Topbar({ crumbs = [], children }) {
   return (
     <header className="flex h-11 shrink-0 items-center gap-2 px-3">
       {!sidebarVisible && (
-        <Tooltip content={<>Open sidebar <Kbd>{modKey}+\</Kbd></>}>
-          <IconButton icon={isMobile ? MenuIcon : ChevronsRight} label="Open sidebar" onClick={toggleSidebar} />
+        <Tooltip
+          content={
+            <>
+              Open sidebar <Kbd>{modKey}+\</Kbd>
+            </>
+          }
+        >
+          <IconButton
+            icon={isMobile ? MenuIcon : ChevronsRight}
+            label="Open sidebar"
+            onClick={toggleSidebar}
+          />
         </Tooltip>
       )}
       <Breadcrumbs crumbs={crumbs} />
@@ -22,14 +32,20 @@ export function Topbar({ crumbs = [], children }) {
 
 export function Breadcrumbs({ crumbs }) {
   // Collapse long chains: first … last two.
-  const shown = crumbs.length > 4 ? [crumbs[0], { label: "…" }, ...crumbs.slice(-2)] : crumbs;
+  const shown =
+    crumbs.length > 4
+      ? [crumbs[0], { label: "…" }, ...crumbs.slice(-2)]
+      : crumbs;
   return (
     <nav aria-label="Breadcrumb" className="flex min-w-0 items-center text-sm">
       {shown.map((c, i) => (
         <span key={i} className="flex min-w-0 items-center">
           {i > 0 && <span className="px-1 text-faint">/</span>}
           {c.to ? (
-            <Link to={c.to} className="flex min-w-0 items-center gap-1.5 truncate rounded px-1.5 py-0.5 text-fg/80 hover:bg-hover">
+            <Link
+              to={c.to}
+              className="flex min-w-0 items-center gap-1.5 truncate rounded px-1.5 py-0.5 text-fg/80 hover:bg-hover"
+            >
               {c.icon && <span className="shrink-0">{c.icon}</span>}
               <span className="truncate">{c.label}</span>
             </Link>

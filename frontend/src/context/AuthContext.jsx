@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { authApi, userApi, onUnauthorized } from "../services/api";
@@ -9,11 +16,19 @@ const AuthContext = createContext(null);
 // status: "loading" | "authenticated" | "anonymous" | "unreachable"
 export function AuthProvider({ children }) {
   const queryClient = useQueryClient();
-  const [state, setState] = useState({ status: "loading", user: null, error: null });
+  const [state, setState] = useState({
+    status: "loading",
+    user: null,
+    error: null,
+  });
 
   const applyUser = useCallback((user) => {
     bindMockUser(user);
-    setState({ status: user ? "authenticated" : "anonymous", user, error: null });
+    setState({
+      status: user ? "authenticated" : "anonymous",
+      user,
+      error: null,
+    });
   }, []);
 
   const loadSession = useCallback(async () => {
@@ -21,7 +36,8 @@ export function AuthProvider({ children }) {
     try {
       applyUser(await userApi.getMe());
     } catch (err) {
-      if (err.status === 0) setState({ status: "unreachable", user: null, error: err });
+      if (err.status === 0)
+        setState({ status: "unreachable", user: null, error: err });
       else applyUser(null);
     }
   }, [applyUser]);
@@ -36,7 +52,8 @@ export function AuthProvider({ children }) {
     () =>
       onUnauthorized(() => {
         setState((s) => {
-          if (s.status === "authenticated") toast.error("Your session has expired. Please log in again.");
+          if (s.status === "authenticated")
+            toast.error("Your session has expired. Please log in again.");
           return { status: "anonymous", user: null, error: null };
         });
         bindMockUser(null);

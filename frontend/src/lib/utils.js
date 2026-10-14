@@ -6,7 +6,26 @@ import { extendTailwindMerge } from "tailwind-merge";
 const twMerge = extendTailwindMerge({
   extend: {
     theme: {
-      color: ["bg", "sidebar", "elevated", "hover", "active", "subtle", "fg", "muted", "faint", "line", "line-strong", "accent", "accent-hover", "accent-soft", "danger", "danger-soft", "success", "warning"],
+      color: [
+        "bg",
+        "sidebar",
+        "elevated",
+        "hover",
+        "active",
+        "subtle",
+        "fg",
+        "muted",
+        "faint",
+        "line",
+        "line-strong",
+        "accent",
+        "accent-hover",
+        "accent-soft",
+        "danger",
+        "danger-soft",
+        "success",
+        "warning",
+      ],
     },
   },
 });
@@ -28,13 +47,16 @@ export function timeAgo(isoString) {
   const seconds = (new Date(isoString).getTime() - Date.now()) / 1000;
   if (Math.abs(seconds) < 45) return "just now";
   for (const [unit, size] of UNITS) {
-    if (Math.abs(seconds) >= size || unit === "minute") return rtf.format(Math.round(seconds / size), unit);
+    if (Math.abs(seconds) >= size || unit === "minute")
+      return rtf.format(Math.round(seconds / size), unit);
   }
   return "";
 }
 
-export const formatDate = (isoString, opts = { month: "short", day: "numeric", year: "numeric" }) =>
-  isoString ? new Date(isoString).toLocaleDateString(undefined, opts) : "";
+export const formatDate = (
+  isoString,
+  opts = { month: "short", day: "numeric", year: "numeric" },
+) => (isoString ? new Date(isoString).toLocaleDateString(undefined, opts) : "");
 
 // Due dates are stored as YYYY-MM-DD (local calendar day).
 export const todayStr = () => {
@@ -72,14 +94,25 @@ export const initials = (name = "") =>
     .map((s) => s[0]?.toUpperCase() ?? "")
     .join("") || "?";
 
-const PALETTE = ["#d9730d", "#0f7b6c", "#9065b0", "#2383e2", "#c14c8a", "#dfab01", "#64473a", "#e03e3e"];
+const PALETTE = [
+  "#d9730d",
+  "#0f7b6c",
+  "#9065b0",
+  "#2383e2",
+  "#c14c8a",
+  "#dfab01",
+  "#64473a",
+  "#e03e3e",
+];
 export function colorFor(str = "") {
   let h = 0;
   for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
   return PALETTE[Math.abs(h) % PALETTE.length];
 }
 
-export const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+export const isMac =
+  typeof navigator !== "undefined" &&
+  /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 export const modKey = isMac ? "⌘" : "Ctrl";
 
 // Plain text from BlockNote blocks, for search and previews.
@@ -90,7 +123,17 @@ export function blocksToText(blocks = [], limit = Infinity) {
       if (out.length > limit) return;
       const c = b.content;
       if (typeof c === "string") out += c + " ";
-      else if (Array.isArray(c)) out += c.map((x) => x.text ?? (Array.isArray(x.content) ? x.content.map((y) => y.text).join("") : "")).join("") + " ";
+      else if (Array.isArray(c))
+        out +=
+          c
+            .map(
+              (x) =>
+                x.text ??
+                (Array.isArray(x.content)
+                  ? x.content.map((y) => y.text).join("")
+                  : ""),
+            )
+            .join("") + " ";
       if (b.children?.length) walk(b.children);
     }
   };

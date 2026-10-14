@@ -4,11 +4,15 @@ import { toast } from "sonner";
 import { todosMock } from "../services/mock";
 import { qk } from "../lib/queryKeys";
 
-export const useTodos = () => useQuery({ queryKey: qk.todos, queryFn: todosMock.list });
+export const useTodos = () =>
+  useQuery({ queryKey: qk.todos, queryFn: todosMock.list });
 
 export function useTodoMutations() {
   const qc = useQueryClient();
-  const patchCache = (todo) => qc.setQueryData(qk.todos, (list) => list?.map((t) => (t.id === todo.id ? todo : t)));
+  const patchCache = (todo) =>
+    qc.setQueryData(qk.todos, (list) =>
+      list?.map((t) => (t.id === todo.id ? todo : t)),
+    );
 
   const create = useMutation({
     mutationFn: todosMock.create,
@@ -22,7 +26,9 @@ export function useTodoMutations() {
     onMutate: async ({ id, patch }) => {
       await qc.cancelQueries({ queryKey: qk.todos });
       const prev = qc.getQueryData(qk.todos);
-      qc.setQueryData(qk.todos, (list) => list?.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+      qc.setQueryData(qk.todos, (list) =>
+        list?.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+      );
       return { prev };
     },
     onError: (err, _v, ctx) => {

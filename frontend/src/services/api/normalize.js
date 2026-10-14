@@ -14,4 +14,5 @@ export function normalizeUser(raw) {
   };
 }
 
-export const normalizeUsers = (list) => (Array.isArray(list) ? list.map(normalizeUser).filter(Boolean) : []);
+export const normalizeUsers = (list) =>
+  Array.isArray(list) ? list.map(normalizeUser).filter(Boolean) : [];

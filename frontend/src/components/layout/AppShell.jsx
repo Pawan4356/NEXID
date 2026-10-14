@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Outlet, useLocation } from "react-router";
 import { Sidebar } from "./Sidebar";
 import { CommandPalette } from "./CommandPalette";
@@ -11,8 +18,13 @@ export const useShell = () => useContext(ShellContext);
 const MOBILE = "(max-width: 768px)";
 
 export function AppShell() {
-  const [collapsed, setCollapsed] = useLocalStorageState("nexid.sidebarCollapsed", false);
-  const [isMobile, setIsMobile] = useState(() => window.matchMedia(MOBILE).matches);
+  const [collapsed, setCollapsed] = useLocalStorageState(
+    "nexid.sidebarCollapsed",
+    false,
+  );
+  const [isMobile, setIsMobile] = useState(
+    () => window.matchMedia(MOBILE).matches,
+  );
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
@@ -38,19 +50,35 @@ export function AppShell() {
   const sidebarVisible = isMobile ? mobileOpen : !collapsed;
 
   const value = useMemo(
-    () => ({ sidebarVisible, isMobile, toggleSidebar, openSearch: () => setSearchOpen(true) }),
+    () => ({
+      sidebarVisible,
+      isMobile,
+      toggleSidebar,
+      openSearch: () => setSearchOpen(true),
+    }),
     [sidebarVisible, isMobile, toggleSidebar],
   );
 
   return (
     <ShellContext.Provider value={value}>
       <div className="flex h-full overflow-hidden">
-        {isMobile && mobileOpen && <div className="fixed inset-0 z-30 bg-black/30" onClick={() => setMobileOpen(false)} />}
+        {isMobile && mobileOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/30"
+            onClick={() => setMobileOpen(false)}
+          />
+        )}
         <aside
           className={cn(
             "z-40 h-full w-60 shrink-0 border-r border-line bg-sidebar transition-[margin,transform] duration-200",
             isMobile ? "fixed inset-y-0 left-0 shadow-xl" : "relative",
-            isMobile ? (mobileOpen ? "translate-x-0" : "-translate-x-full") : collapsed ? "-ml-60" : "ml-0",
+            isMobile
+              ? mobileOpen
+                ? "translate-x-0"
+                : "-translate-x-full"
+              : collapsed
+                ? "-ml-60"
+                : "ml-0",
           )}
           aria-hidden={!sidebarVisible}
           inert={!sidebarVisible || undefined}

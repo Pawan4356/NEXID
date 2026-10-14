@@ -66,7 +66,10 @@ export function useAutosave(save, delay = 700) {
     } catch (err) {
       // Keep the failed patch queued (newer edits win) so the next save retries it.
       const newer = pending.current;
-      pending.current = newer && typeof newer === "object" && typeof value === "object" ? { ...value, ...newer } : (newer ?? value);
+      pending.current =
+        newer && typeof newer === "object" && typeof value === "object"
+          ? { ...value, ...newer }
+          : (newer ?? value);
       // A final save after unmount (e.g. the record was just deleted) has nobody to report to.
       if (!mounted.current) return;
       setStatus("error");
@@ -78,7 +81,10 @@ export function useAutosave(save, delay = 700) {
     (value) => {
       // Object patches merge so e.g. a title edit and a content edit save together.
       const prev = pending.current;
-      pending.current = prev && typeof prev === "object" && typeof value === "object" ? { ...prev, ...value } : value;
+      pending.current =
+        prev && typeof prev === "object" && typeof value === "object"
+          ? { ...prev, ...value }
+          : value;
       setStatus("pending");
       clearTimeout(timer.current);
       timer.current = setTimeout(flush, delay);

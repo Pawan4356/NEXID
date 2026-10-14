@@ -8,7 +8,11 @@ import { cn } from "../../lib/utils";
 import { DueDate, PriorityBadge, StatusBadge } from "./TodoBits";
 import { STATUS } from "./meta";
 
-const toggleDone = (update, t) => update.mutate({ id: t.id, patch: { status: t.status === "done" ? "todo" : "done" } });
+const toggleDone = (update, t) =>
+  update.mutate({
+    id: t.id,
+    patch: { status: t.status === "done" ? "todo" : "done" },
+  });
 
 function QuickAdd({ defaults, className }) {
   const { create } = useTodoMutations();
@@ -20,7 +24,13 @@ function QuickAdd({ defaults, className }) {
   };
   if (!active)
     return (
-      <button onClick={() => setActive(true)} className={cn("flex h-8 w-full items-center gap-1.5 px-2 text-sm text-faint hover:bg-hover hover:text-muted", className)}>
+      <button
+        onClick={() => setActive(true)}
+        className={cn(
+          "flex h-8 w-full items-center gap-1.5 px-2 text-sm text-faint hover:bg-hover hover:text-muted",
+          className,
+        )}
+      >
         <Plus className="size-4" /> New
       </button>
     );
@@ -38,7 +48,10 @@ function QuickAdd({ defaults, className }) {
         }
       }}
       placeholder="Task name, then Enter"
-      className={cn("h-8 w-full bg-transparent px-3 text-sm outline-none placeholder:text-faint", className)}
+      className={cn(
+        "h-8 w-full bg-transparent px-3 text-sm outline-none placeholder:text-faint",
+        className,
+      )}
       aria-label="New task title"
     />
   );
@@ -48,34 +61,56 @@ export function TodoTable({ todos, onOpen }) {
   const { update } = useTodoMutations();
   const { data: notes = [] } = useNotes();
   const noteById = new Map(notes.map((n) => [n.id, n]));
-  const cols = "grid grid-cols-[28px_minmax(0,1fr)_110px_96px_100px] md:grid-cols-[28px_minmax(0,1fr)_120px_100px_110px_180px]";
+  const cols =
+    "grid grid-cols-[28px_minmax(0,1fr)_110px_96px_100px] md:grid-cols-[28px_minmax(0,1fr)_120px_100px_110px_180px]";
 
   return (
     <div className="overflow-x-auto">
-      <div className="min-w-[560px] text-sm">
-        <div className={cn(cols, "h-8 items-center border-y border-line text-xs text-muted")}>
+      <div className="min-w-140 text-sm">
+        <div
+          className={cn(
+            cols,
+            "h-8 items-center border-y border-line text-xs text-muted",
+          )}
+        >
           <span />
           <span className="px-2">Name</span>
           <span className="border-l border-line px-2">Status</span>
           <span className="border-l border-line px-2">Priority</span>
           <span className="border-l border-line px-2">Due</span>
-          <span className="hidden border-l border-line px-2 md:block">Page</span>
+          <span className="hidden border-l border-line px-2 md:block">
+            Page
+          </span>
         </div>
         {todos.map((t) => {
           const note = noteById.get(t.noteId);
           return (
             <div
               key={t.id}
-              className={cn(cols, "group h-9 cursor-pointer items-center border-b border-line hover:bg-subtle")}
+              className={cn(
+                cols,
+                "group h-9 cursor-pointer items-center border-b border-line hover:bg-subtle",
+              )}
               onClick={() => onOpen(t)}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => e.key === "Enter" && onOpen(t)}
             >
               <span className="flex justify-center">
-                <Checkbox checked={t.status === "done"} onChange={() => toggleDone(update, t)} label={`Mark "${t.title}" ${t.status === "done" ? "not done" : "done"}`} />
+                <Checkbox
+                  checked={t.status === "done"}
+                  onChange={() => toggleDone(update, t)}
+                  label={`Mark "${t.title}" ${t.status === "done" ? "not done" : "done"}`}
+                />
               </span>
-              <span className={cn("truncate px-2 font-medium", t.status === "done" && "text-faint line-through")}>{t.title}</span>
+              <span
+                className={cn(
+                  "truncate px-2 font-medium",
+                  t.status === "done" && "text-faint line-through",
+                )}
+              >
+                {t.title}
+              </span>
               <span className="px-2">
                 <StatusBadge status={t.status} />
               </span>
@@ -87,7 +122,11 @@ export function TodoTable({ todos, onOpen }) {
               </span>
               <span className="hidden truncate px-2 md:block">
                 {note ? (
-                  <Link to={`/notes/${note.id}`} onClick={(e) => e.stopPropagation()} className="text-muted hover:text-fg hover:underline">
+                  <Link
+                    to={`/notes/${note.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-muted hover:text-fg hover:underline"
+                  >
                     {note.icon} {note.title || "Untitled"}
                   </Link>
                 ) : (
@@ -126,9 +165,14 @@ export function TodoBoard({ todos, onOpen }) {
               e.preventDefault();
               setDragOver(status);
             }}
-            onDragLeave={(e) => !e.currentTarget.contains(e.relatedTarget) && setDragOver(null)}
+            onDragLeave={(e) =>
+              !e.currentTarget.contains(e.relatedTarget) && setDragOver(null)
+            }
             onDrop={onDrop(status)}
-            className={cn("flex w-72 shrink-0 flex-col rounded-lg p-1.5 transition-colors", dragOver === status ? "bg-accent-soft" : "bg-subtle")}
+            className={cn(
+              "flex w-72 shrink-0 flex-col rounded-lg p-1.5 transition-colors",
+              dragOver === status ? "bg-accent-soft" : "bg-subtle",
+            )}
             aria-label={s.label}
           >
             <header className="flex h-8 items-center gap-2 px-1.5 text-sm">
@@ -148,8 +192,20 @@ export function TodoBoard({ todos, onOpen }) {
                   className="cursor-pointer rounded-md border border-line bg-bg p-2.5 shadow-[0_1px_2px_rgba(15,15,15,0.06)] hover:bg-subtle"
                 >
                   <div className="flex items-start gap-2">
-                    <Checkbox checked={t.status === "done"} onChange={() => toggleDone(update, t)} className="mt-0.5" label={`Toggle "${t.title}"`} />
-                    <p className={cn("text-sm leading-snug font-medium", t.status === "done" && "text-faint line-through")}>{t.title}</p>
+                    <Checkbox
+                      checked={t.status === "done"}
+                      onChange={() => toggleDone(update, t)}
+                      className="mt-0.5"
+                      label={`Toggle "${t.title}"`}
+                    />
+                    <p
+                      className={cn(
+                        "text-sm leading-snug font-medium",
+                        t.status === "done" && "text-faint line-through",
+                      )}
+                    >
+                      {t.title}
+                    </p>
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-2 pl-6">
                     <PriorityBadge priority={t.priority} />

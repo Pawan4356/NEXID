@@ -14,7 +14,10 @@ const queryClient = new QueryClient({
       staleTime: 30_000,
       refetchOnWindowFocus: false,
       // Don't retry auth failures or 4xx responses.
-      retry: (count, err) => count < 1 && !(err?.status >= 400 && err?.status < 500) && err?.name !== "MockError",
+      retry: (count, err) =>
+        count < 1 &&
+        !(err?.status >= 400 && err?.status < 500) &&
+        err?.name !== "MockError",
     },
   },
 });

@@ -9,7 +9,10 @@
 //  - Auth is a JWT in a "token" cookie, so every request uses
 //    credentials: "include".
 
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(
+  /\/$/,
+  "",
+);
 
 export class ApiError extends Error {
   constructor(message, { status, body, isUnauthorized = false } = {}) {
@@ -21,7 +24,8 @@ export class ApiError extends Error {
   }
 }
 
-const AUTH_FAILURE = /^Error: (Invalid token|User not found|jwt|invalid signature|invalid token)/i;
+const AUTH_FAILURE =
+  /^Error: (Invalid token|User not found|jwt|invalid signature|invalid token)/i;
 
 const unauthorizedListeners = new Set();
 export function onUnauthorized(listener) {
@@ -46,11 +50,17 @@ async function parseBody(res) {
 // Turn backend error strings into something readable.
 function cleanMessage(body, status) {
   if (typeof body !== "string" || !body.trim()) {
-    return status >= 500 ? "The server ran into a problem." : `Request failed (${status}).`;
+    return status >= 500
+      ? "The server ran into a problem."
+      : `Request failed (${status}).`;
   }
-  if (body.trim().startsWith("<")) return `The server ran into a problem (${status}).`;
-  let msg = body.replace(/^Something Went wrong:\s*/i, "").replace(/^Error:\s*/, "");
-  if (/E11000/.test(msg) && /email/.test(msg)) msg = "An account with this email already exists.";
+  if (body.trim().startsWith("<"))
+    return `The server ran into a problem (${status}).`;
+  let msg = body
+    .replace(/^Something Went wrong:\s*/i, "")
+    .replace(/^Error:\s*/, "");
+  if (/E11000/.test(msg) && /email/.test(msg))
+    msg = "An account with this email already exists.";
   return msg.replace(/\.{2,}$/, ".");
 }
 
@@ -59,30 +69,46 @@ function cleanMessage(body, status) {
  * @param {{ method?: string, body?: unknown, signal?: AbortSignal, auth?: boolean }} options
  *   auth: true when the route is protected by userAuth; enables unauthorized detection.
  */
-export async function request(path, { method = "GET", body, signal, auth = false } = {}) {
+export async function request(
+  path,
+  { method = "GET", body, signal, auth = false } = {},
+) {
   let res;
   try {
     res = await fetch(BASE_URL + path, {
       method,
       signal,
       credentials: "include",
-      headers: body !== undefined ? { "Content-Type": "application/json" } : undefined,
+      headers:
+        body !== undefined ? { "Content-Type": "application/json" } : undefined,
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch (err) {
     if (err.name === "AbortError") throw err;
-    throw new ApiError("Can't reach the Nexid server. Is the backend running?", { status: 0 });
+    throw new ApiError(
+      "Can't reach the Nexid server. Is the backend running?",
+      { status: 0 },
+    );
   }
 
   const data = await parseBody(res);
   if (res.ok) return data;
 
-  const isUnauthorized = auth && res.status === 400 && typeof data === "string" && AUTH_FAILURE.test(data);
-  const error = new ApiError(isUnauthorized ? "Your session has expired. Please log in again." : cleanMessage(data, res.status), {
-    status: res.status,
-    body: data,
-    isUnauthorized,
-  });
+  const isUnauthorized =
+    auth &&
+    res.status === 400 &&
+    typeof data === "string" &&
+    AUTH_FAILURE.test(data);
+  const error = new ApiError(
+    isUnauthorized
+      ? "Your session has expired. Please log in again."
+      : cleanMessage(data, res.status),
+    {
+      status: res.status,
+      body: data,
+      isUnauthorized,
+    },
+  );
   if (isUnauthorized) unauthorizedListeners.forEach((fn) => fn(error));
   throw error;
 }

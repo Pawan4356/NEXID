@@ -7,7 +7,9 @@ import { Avatar, Tooltip } from "../ui";
  */
 export function PresenceAvatars({ resourceType, resource }) {
   const share = useShare(resourceType, resource.id);
-  const shared = resource.visibility !== "private" || (share.data?.collaborators.length ?? 0) > 0;
+  const shared =
+    resource.visibility !== "private" ||
+    (share.data?.collaborators.length ?? 0) > 0;
   const people = useSimulatedPresence(shared ? resource.id : null);
   if (!people.length) return null;
   const active = people.filter((p) => p.activity !== "idle");
@@ -27,13 +29,25 @@ export function PresenceAvatars({ resourceType, resource }) {
                 {p.name} — {p.activity}
               </p>
             ))}
-            <p className="pt-1 text-white/60">Simulated presence. No realtime backend yet.</p>
+            <p className="pt-1 text-white/60">
+              Simulated presence. No realtime backend yet.
+            </p>
           </div>
         }
       >
-        <div className="flex -space-x-1.5" aria-label={`${active.length} simulated collaborators active`}>
+        <div
+          className="flex -space-x-1.5"
+          aria-label={`${active.length} simulated collaborators active`}
+        >
           {people.map((p) => (
-            <Avatar key={p.id} user={p} size="sm" ring presence={p.activity} className={p.activity === "idle" ? "opacity-50" : ""} />
+            <Avatar
+              key={p.id}
+              user={p}
+              size="sm"
+              ring
+              presence={p.activity}
+              className={p.activity === "idle" ? "opacity-50" : ""}
+            />
           ))}
         </div>
       </Tooltip>

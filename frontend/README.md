@@ -18,7 +18,7 @@ Requirements: Node **20.19+** or **22.12+** (required by Vite 8), plus a running
 # 1. Backend (unchanged): needs backend/.env with PORT, DB_URL, JWT_SECRET_KEY
 cd backend
 npm install
-npm run dev            # listens on PORT (5110 in the provided .env template)
+npm run dev            # listens on PORT (5101 in the provided .env template)
 
 # 2. Frontend
 cd ../frontend
@@ -38,7 +38,7 @@ Copy `.env.example` to `.env` if you need to change the defaults.
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `VITE_API_BASE_URL` | `/api` | Base URL the browser calls. `/api` goes through the Vite proxy. |
-| `DEV_PROXY_TARGET` | `http://localhost:5110` | Where the proxy forwards `/api/*`. **Must match backend `PORT`.** Read only by `vite.config.js` and never shipped to the browser. |
+| `DEV_PROXY_TARGET` | `http://localhost:5101` | Where the proxy forwards `/api/*`. **Must match backend `PORT`.** Read only by `vite.config.js` and never shipped to the browser. |
 | `VITE_MOCK_LATENCY_MS` | `150` | Artificial delay for mock services, so loading states are visible. |
 
 There are no secrets in the frontend. Don't put backend variables (`DB_URL`,
@@ -49,7 +49,7 @@ There are no secrets in the frontend. Don't put backend variables (`DB_URL`,
 ## Cookies and CORS: why there's a proxy
 
 The backend sets the JWT in a `token` cookie and has **no CORS middleware**. A
-browser on `localhost:5173` calling `localhost:5110` directly would be blocked.
+browser on `localhost:5173` calling `localhost:5101` directly would be blocked.
 
 So in development, the browser only talks to Vite (`/api/...`), and Vite
 forwards the request to Express with the `/api` prefix stripped. For the
@@ -68,7 +68,7 @@ app.use(cors({ origin: "https://app.example.com", credentials: true }));
 
 and set cookie options on login/signup:
 `{ httpOnly: true, secure: true, sameSite: "none" }` (use `sameSite: "lax"`
-if frontend and API share a site). `localhost:5173 → localhost:5110` counts as
+if frontend and API share a site). `localhost:5173 → localhost:5101` counts as
 same-site, so locally only `cors()` would be needed.
 
 For production on a single domain, the simplest setup is a reverse proxy

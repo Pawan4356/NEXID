@@ -2,15 +2,22 @@ import { request } from "./client";
 import { normalizeUser, normalizeUsers } from "./normalize";
 
 // GET /user/me (auth) -> user document
-export const getMe = async () => normalizeUser(await request("/user/me", { auth: true }));
+export const getMe = async () =>
+  normalizeUser(await request("/user/me", { auth: true }));
 
 // PATCH /user/update (auth) -> updated user. Allowed keys: name, avatar, gender, age, bio.
 export const updateMe = async (patch) =>
-  normalizeUser(await request("/user/update", { method: "PATCH", body: patch, auth: true }));
+  normalizeUser(
+    await request("/user/update", { method: "PATCH", body: patch, auth: true }),
+  );
 
 // PATCH /user/changePassword (auth) { oldPassword, newPassword }
 export const changePassword = ({ oldPassword, newPassword }) =>
-  request("/user/changePassword", { method: "PATCH", body: { oldPassword, newPassword }, auth: true });
+  request("/user/changePassword", {
+    method: "PATCH",
+    body: { oldPassword, newPassword },
+    auth: true,
+  });
 
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -28,4 +35,5 @@ export const searchUsers = async (name = "", { signal } = {}) => {
 };
 
 // GET /user/:userId (public)
-export const getUser = async (userId) => normalizeUser(await request(`/user/${encodeURIComponent(userId)}`));
+export const getUser = async (userId) =>
+  normalizeUser(await request(`/user/${encodeURIComponent(userId)}`));

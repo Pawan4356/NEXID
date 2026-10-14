@@ -1,11 +1,19 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 const ThemeContext = createContext(null);
 const KEY = "nexid.theme";
 const media = () => window.matchMedia("(prefers-color-scheme: dark)");
 
 export function ThemeProvider({ children }) {
-  const [preference, setPreference] = useState(() => localStorage.getItem(KEY) || "system");
+  const [preference, setPreference] = useState(
+    () => localStorage.getItem(KEY) || "system",
+  );
   const [systemDark, setSystemDark] = useState(() => media().matches);
 
   useEffect(() => {
@@ -15,7 +23,8 @@ export function ThemeProvider({ children }) {
     return () => m.removeEventListener("change", onChange);
   }, []);
 
-  const resolved = preference === "system" ? (systemDark ? "dark" : "light") : preference;
+  const resolved =
+    preference === "system" ? (systemDark ? "dark" : "light") : preference;
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", resolved === "dark");
@@ -26,7 +35,11 @@ export function ThemeProvider({ children }) {
     setPreference(t);
   }, []);
 
-  return <ThemeContext.Provider value={{ preference, resolved, setTheme }}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={{ preference, resolved, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 }
 
 export const useTheme = () => useContext(ThemeContext);

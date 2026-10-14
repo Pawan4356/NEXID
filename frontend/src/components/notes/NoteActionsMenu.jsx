@@ -2,12 +2,30 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { Copy, Link2, PencilLine, Star, StarOff, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { ConfirmDialog, Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from "../ui";
-import { useDeleteNote, useDuplicateNote, useNoteTree, useUpdateNote } from "../../hooks/useNotes";
+import {
+  ConfirmDialog,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuSeparator,
+  MenuTrigger,
+} from "../ui";
+import {
+  useDeleteNote,
+  useDuplicateNote,
+  useNoteTree,
+  useUpdateNote,
+} from "../../hooks/useNotes";
 import { timeAgo } from "../../lib/utils";
 
 /** Rename / favorite / duplicate / copy link / delete — used in the sidebar and the page header. */
-export function NoteActionsMenu({ note, trigger, onRename, align = "start", extra }) {
+export function NoteActionsMenu({
+  note,
+  trigger,
+  onRename,
+  align = "start",
+  extra,
+}) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,8 +37,12 @@ export function NoteActionsMenu({ note, trigger, onRename, align = "start", extr
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}/notes/${note.id}`);
-      toast.success("Link copied", { description: "Only you can open it until the sharing API exists." });
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/notes/${note.id}`,
+      );
+      toast.success("Link copied", {
+        description: "Only you can open it until the sharing API exists.",
+      });
     } catch {
       toast.error("Couldn't access the clipboard.");
     }
@@ -33,15 +55,29 @@ export function NoteActionsMenu({ note, trigger, onRename, align = "start", extr
       const parent = ancestors(note.id).at(-1);
       navigate(parent ? `/notes/${parent.id}` : "/");
     }
-    toast.success(`Deleted "${note.title || "Untitled"}"${removed.length > 1 ? ` and ${removed.length - 1} sub-page(s)` : ""}`);
+    toast.success(
+      `Deleted "${note.title || "Untitled"}"${removed.length > 1 ? ` and ${removed.length - 1} sub-page(s)` : ""}`,
+    );
   };
 
   return (
     <>
       <Menu>
         <MenuTrigger>{trigger}</MenuTrigger>
-        <MenuContent align={align} className="w-60" onCloseAutoFocus={(e) => onRename && e.preventDefault()}>
-          <MenuItem icon={note.isFavorite ? StarOff : Star} onSelect={() => update.mutate({ id: note.id, patch: { isFavorite: !note.isFavorite } })}>
+        <MenuContent
+          align={align}
+          className="w-60"
+          onCloseAutoFocus={(e) => onRename && e.preventDefault()}
+        >
+          <MenuItem
+            icon={note.isFavorite ? StarOff : Star}
+            onSelect={() =>
+              update.mutate({
+                id: note.id,
+                patch: { isFavorite: !note.isFavorite },
+              })
+            }
+          >
             {note.isFavorite ? "Remove from favorites" : "Add to favorites"}
           </MenuItem>
           <MenuSeparator />
@@ -72,7 +108,9 @@ export function NoteActionsMenu({ note, trigger, onRename, align = "start", extr
             Delete
           </MenuItem>
           <MenuSeparator />
-          <p className="px-2 py-1 text-xs text-faint">Last edited {timeAgo(note.updatedAt)}</p>
+          <p className="px-2 py-1 text-xs text-faint">
+            Last edited {timeAgo(note.updatedAt)}
+          </p>
         </MenuContent>
       </Menu>
       <ConfirmDialog

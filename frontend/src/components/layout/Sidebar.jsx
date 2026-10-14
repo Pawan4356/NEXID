@@ -1,5 +1,20 @@
 import { NavLink, useNavigate } from "react-router";
-import { ChevronsLeft, ChevronsUpDown, CheckSquare, Home, LogOut, Moon, Monitor, PenTool, Plus, Search, Settings, Sun, User, Users } from "lucide-react";
+import {
+  ChevronsLeft,
+  ChevronsUpDown,
+  CheckSquare,
+  Home,
+  LogOut,
+  Moon,
+  Monitor,
+  PenTool,
+  Plus,
+  Search,
+  Settings,
+  Sun,
+  User,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -7,7 +22,20 @@ import { useShell } from "./AppShell";
 import { NoteTree } from "../notes/NoteTree";
 import { useCreateNote, useNotes } from "../../hooks/useNotes";
 import { useDiagrams } from "../../hooks/useDiagrams";
-import { Avatar, IconButton, Kbd, Menu, MenuContent, MenuItem, MenuLabel, MenuRadioGroup, MenuSeparator, MenuTrigger, SubMenu, Tooltip } from "../ui";
+import {
+  Avatar,
+  IconButton,
+  Kbd,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuLabel,
+  MenuRadioGroup,
+  MenuSeparator,
+  MenuTrigger,
+  SubMenu,
+  Tooltip,
+} from "../ui";
 import { cn, modKey } from "../../lib/utils";
 
 export const navItemCls = (active) =>
@@ -18,7 +46,11 @@ export const navItemCls = (active) =>
 
 function NavItem({ to, icon: Icon, children, end }) {
   return (
-    <NavLink to={to} end={end} className={({ isActive }) => navItemCls(isActive)}>
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) => navItemCls(isActive)}
+    >
       <Icon className="size-[18px] shrink-0" strokeWidth={1.7} />
       <span className="truncate">{children}</span>
     </NavLink>
@@ -30,7 +62,11 @@ export function SidebarSection({ title, action, children }) {
     <div className="mt-4">
       <div className="group/section flex h-7 items-center justify-between px-2">
         <span className="text-xs font-medium text-faint">{title}</span>
-        {action && <div className="opacity-0 transition-opacity group-hover/section:opacity-100 focus-within:opacity-100">{action}</div>}
+        {action && (
+          <div className="opacity-0 transition-opacity group-hover/section:opacity-100 focus-within:opacity-100">
+            {action}
+          </div>
+        )}
       </div>
       {children}
     </div>
@@ -57,7 +93,9 @@ function WorkspaceMenu() {
       <MenuTrigger>
         <button className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md px-1.5 text-left hover:bg-hover">
           <Avatar user={user} size="sm" />
-          <span className="truncate text-sm font-medium">{first}&rsquo;s Nexid</span>
+          <span className="truncate text-sm font-medium">
+            {first}&rsquo;s Nexid
+          </span>
           <ChevronsUpDown className="size-3.5 shrink-0 text-faint" />
         </button>
       </MenuTrigger>
@@ -76,7 +114,16 @@ function WorkspaceMenu() {
         <MenuItem icon={Settings} onSelect={() => navigate("/settings")}>
           Settings
         </MenuItem>
-        <SubMenu icon={preference === "dark" ? Moon : preference === "light" ? Sun : Monitor} label="Theme">
+        <SubMenu
+          icon={
+            preference === "dark"
+              ? Moon
+              : preference === "light"
+                ? Sun
+                : Monitor
+          }
+          label="Theme"
+        >
           <MenuRadioGroup
             value={preference}
             onValueChange={setTheme}
@@ -101,16 +148,38 @@ function Favorites() {
   const { data: notes = [] } = useNotes();
   const { data: diagrams = [] } = useDiagrams();
   const items = [
-    ...notes.filter((n) => n.isFavorite).map((n) => ({ id: n.id, to: `/notes/${n.id}`, icon: n.icon, title: n.title })),
-    ...diagrams.filter((d) => d.isFavorite).map((d) => ({ id: d.id, to: `/diagrams/${d.id}`, lucide: PenTool, title: d.title })),
+    ...notes
+      .filter((n) => n.isFavorite)
+      .map((n) => ({
+        id: n.id,
+        to: `/notes/${n.id}`,
+        icon: n.icon,
+        title: n.title,
+      })),
+    ...diagrams
+      .filter((d) => d.isFavorite)
+      .map((d) => ({
+        id: d.id,
+        to: `/diagrams/${d.id}`,
+        lucide: PenTool,
+        title: d.title,
+      })),
   ];
   if (!items.length) return null;
   return (
     <SidebarSection title="Favorites">
       {items.map((it) => (
-        <NavLink key={it.id} to={it.to} className={({ isActive }) => navItemCls(isActive)}>
+        <NavLink
+          key={it.id}
+          to={it.to}
+          className={({ isActive }) => navItemCls(isActive)}
+        >
           <span className="flex size-[18px] shrink-0 items-center justify-center text-[15px]">
-            {it.lucide ? <it.lucide className="size-4" strokeWidth={1.7} /> : it.icon}
+            {it.lucide ? (
+              <it.lucide className="size-4" strokeWidth={1.7} />
+            ) : (
+              it.icon
+            )}
           </span>
           <span className="truncate">{it.title || "Untitled"}</span>
         </NavLink>
@@ -124,14 +193,25 @@ export function Sidebar() {
   const createNote = useCreateNote();
   const navigate = useNavigate();
 
-  const newPage = () => createNote.mutate({}, { onSuccess: (n) => navigate(`/notes/${n.id}`) });
+  const newPage = () =>
+    createNote.mutate({}, { onSuccess: (n) => navigate(`/notes/${n.id}`) });
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-1 px-2 pt-2">
         <WorkspaceMenu />
-        <Tooltip content={<>Close sidebar <Kbd>{modKey}+\</Kbd></>}>
-          <IconButton icon={ChevronsLeft} label="Close sidebar" onClick={toggleSidebar} />
+        <Tooltip
+          content={
+            <>
+              Close sidebar <Kbd>{modKey}+\</Kbd>
+            </>
+          }
+        >
+          <IconButton
+            icon={ChevronsLeft}
+            label="Close sidebar"
+            onClick={toggleSidebar}
+          />
         </Tooltip>
       </div>
 
@@ -163,7 +243,14 @@ export function Sidebar() {
               Pages
             </NavLink>
           }
-          action={<IconButton icon={Plus} size="sm" label="New page" onClick={newPage} />}
+          action={
+            <IconButton
+              icon={Plus}
+              size="sm"
+              label="New page"
+              onClick={newPage}
+            />
+          }
         >
           <NoteTree />
         </SidebarSection>
@@ -173,7 +260,11 @@ export function Sidebar() {
         <NavItem to="/settings" icon={Settings}>
           Settings
         </NavItem>
-        <button onClick={newPage} disabled={createNote.isPending} className={navItemCls(false)}>
+        <button
+          onClick={newPage}
+          disabled={createNote.isPending}
+          className={navItemCls(false)}
+        >
           <Plus className="size-[18px] shrink-0" strokeWidth={1.7} />
           New page
         </button>

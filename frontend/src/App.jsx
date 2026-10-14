@@ -1,5 +1,11 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router";
 import { ServerCrash } from "lucide-react";
 import { useAuth } from "./context/AuthContext";
 import { AppShell } from "./components/layout/AppShell";
@@ -20,7 +26,11 @@ import { apiBaseUrl } from "./services/api";
 const DiagramPage = lazy(() => import("./pages/DiagramPage"));
 
 function FullScreen({ children }) {
-  return <div className="flex h-full flex-col items-center justify-center gap-3 text-sm text-muted">{children}</div>;
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-3 text-sm text-muted">
+      {children}
+    </div>
+  );
 }
 
 function Unreachable() {
@@ -32,8 +42,13 @@ function Unreachable() {
         title="Can't reach the Nexid backend"
         description={
           <>
-            {error?.message} Requests go to <code className="rounded bg-hover px-1">{apiBaseUrl}</code>. Start it with{" "}
-            <code className="rounded bg-hover px-1">cd backend && npm run dev</code>.
+            {error?.message} Requests go to{" "}
+            <code className="rounded bg-hover px-1">{apiBaseUrl}</code>. Start
+            it with{" "}
+            <code className="rounded bg-hover px-1">
+              cd backend && npm run dev
+            </code>
+            .
           </>
         }
         action={<Button onClick={retry}>Retry</Button>}
@@ -52,7 +67,14 @@ function RequireAuth({ children }) {
       </FullScreen>
     );
   if (status === "unreachable") return <Unreachable />;
-  if (status !== "authenticated") return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
+  if (status !== "authenticated")
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ from: location.pathname + location.search }}
+      />
+    );
   return children;
 }
 
@@ -72,7 +94,10 @@ function NotFound() {
   return (
     <div className="flex h-full flex-col">
       <Topbar />
-      <EmptyState title="Page not found" description="The link may be broken or the page was removed." />
+      <EmptyState
+        title="Page not found"
+        description="The link may be broken or the page was removed."
+      />
     </div>
   );
 }
@@ -81,9 +106,29 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<GuestOnly><LoginPage /></GuestOnly>} />
-        <Route path="/signup" element={<GuestOnly><SignupPage /></GuestOnly>} />
-        <Route element={<RequireAuth><AppShell /></RequireAuth>}>
+        <Route
+          path="/login"
+          element={
+            <GuestOnly>
+              <LoginPage />
+            </GuestOnly>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <GuestOnly>
+              <SignupPage />
+            </GuestOnly>
+          }
+        />
+        <Route
+          element={
+            <RequireAuth>
+              <AppShell />
+            </RequireAuth>
+          }
+        >
           <Route index element={<HomePage />} />
           <Route path="notes" element={<NotesPage />} />
           <Route path="notes/:noteId" element={<NotePage />} />
@@ -92,7 +137,13 @@ export default function App() {
           <Route
             path="diagrams/:diagramId"
             element={
-              <Suspense fallback={<FullScreen><Spinner /> Loading editor…</FullScreen>}>
+              <Suspense
+                fallback={
+                  <FullScreen>
+                    <Spinner /> Loading editor…
+                  </FullScreen>
+                }
+              >
                 <DiagramPage />
               </Suspense>
             }

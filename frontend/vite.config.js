@@ -7,7 +7,7 @@ import tailwindcss from "@tailwindcss/vite";
 // stays same-origin and no backend change is needed.
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const target = env.DEV_PROXY_TARGET || "http://localhost:5110";
+  const target = env.DEV_PROXY_TARGET || "http://localhost:5101";
 
   return {
     plugins: [react(), tailwindcss()],

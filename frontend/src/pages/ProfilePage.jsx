@@ -3,7 +3,14 @@ import { CalendarDays, FileText, Info, Users } from "lucide-react";
 import { Topbar } from "../components/layout/Topbar";
 import { FollowButton } from "../components/social/FollowButton";
 import { UserRow, UserRowSkeleton } from "../components/social/UserRow";
-import { Avatar, Badge, EmptyState, ErrorState, MockBadge, Skeleton } from "../components/ui";
+import {
+  Avatar,
+  Badge,
+  EmptyState,
+  ErrorState,
+  MockBadge,
+  Skeleton,
+} from "../components/ui";
 import { useAuth } from "../context/AuthContext";
 import { useMyFollowers, useMyFollowing, useUser } from "../hooks/useSocial";
 import { useNotes } from "../hooks/useNotes";
@@ -18,7 +25,8 @@ function UserList({ query, emptyTitle, followerIds }) {
         ))}
       </ul>
     );
-  if (query.error) return <ErrorState error={query.error} onRetry={query.refetch} />;
+  if (query.error)
+    return <ErrorState error={query.error} onRetry={query.refetch} />;
   if (!query.data.length) return <EmptyState icon={Users} title={emptyTitle} />;
   return (
     <ul className="space-y-0.5">
@@ -42,17 +50,33 @@ function NotAvailable({ what }) {
 function PublicPages({ isMe }) {
   const { data: notes = [], isLoading } = useNotes();
   if (!isMe)
-    return <p className="text-sm text-muted">Other people's public pages need a notes API (e.g. GET /users/:id/notes?visibility=public).</p>;
+    return (
+      <p className="text-sm text-muted">
+        Other people's public pages need a notes API (e.g. GET
+        /users/:id/notes?visibility=public).
+      </p>
+    );
   if (isLoading) return <Skeleton className="h-16" />;
   const pub = notes.filter((n) => n.visibility === "public");
-  if (!pub.length) return <p className="text-sm text-muted">None of your pages are public. Change visibility from a page's Share menu.</p>;
+  if (!pub.length)
+    return (
+      <p className="text-sm text-muted">
+        None of your pages are public. Change visibility from a page's Share
+        menu.
+      </p>
+    );
   return (
     <ul className="grid gap-2 sm:grid-cols-2">
       {pub.map((n) => (
         <li key={n.id}>
-          <Link to={`/notes/${n.id}`} className="flex items-center gap-2 rounded-lg border border-line px-3 py-2.5 hover:bg-hover">
+          <Link
+            to={`/notes/${n.id}`}
+            className="flex items-center gap-2 rounded-lg border border-line px-3 py-2.5 hover:bg-hover"
+          >
             <span>{n.icon}</span>
-            <span className="truncate text-sm font-medium">{n.title || "Untitled"}</span>
+            <span className="truncate text-sm font-medium">
+              {n.title || "Untitled"}
+            </span>
           </Link>
         </li>
       ))}
@@ -66,7 +90,9 @@ export default function ProfilePage() {
   const userId = param === "me" ? me.id : param;
   const isMe = userId === me.id;
   const [params, setParams] = useSearchParams();
-  const tab = ["followers", "following"].includes(params.get("tab")) ? params.get("tab") : "overview";
+  const tab = ["followers", "following"].includes(params.get("tab"))
+    ? params.get("tab")
+    : "overview";
 
   // Your own profile comes from GET /user/me (already loaded); others from GET /user/:userId.
   const other = useUser(isMe ? null : userId);
@@ -92,7 +118,19 @@ export default function ProfilePage() {
       <div className="flex h-full flex-col">
         <Topbar crumbs={[{ label: "People", to: "/people" }]} />
         {other.error?.status === 404 || other.error?.status === 400 ? (
-          <EmptyState icon={Users} title="User not found" description="This profile doesn't exist or the link is malformed." action={<Link to="/people" className="text-sm text-accent hover:underline">Browse people</Link>} />
+          <EmptyState
+            icon={Users}
+            title="User not found"
+            description="This profile doesn't exist or the link is malformed."
+            action={
+              <Link
+                to="/people"
+                className="text-sm text-accent hover:underline"
+              >
+                Browse people
+              </Link>
+            }
+          />
         ) : (
           <ErrorState error={other.error} onRetry={other.refetch} />
         )}
@@ -107,7 +145,16 @@ export default function ProfilePage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Topbar crumbs={[{ label: "People", to: "/people", icon: <Users className="size-4" /> }, { label: profile.name }]} />
+      <Topbar
+        crumbs={[
+          {
+            label: "People",
+            to: "/people",
+            icon: <Users className="size-4" />,
+          },
+          { label: profile.name },
+        ]}
+      />
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-2xl px-6 pt-12 pb-24">
           <div className="flex flex-wrap items-start gap-5">
@@ -116,14 +163,28 @@ export default function ProfilePage() {
               <h1 className="flex flex-wrap items-center gap-2 text-2xl font-bold tracking-tight">
                 {profile.name}
                 {isMe && <Badge>You</Badge>}
-                {!isMe && followerIds.has(profile.id) && <Badge>Follows you</Badge>}
+                {!isMe && followerIds.has(profile.id) && (
+                  <Badge>Follows you</Badge>
+                )}
               </h1>
-              {profile.bio ? <p className="mt-1.5 text-sm leading-relaxed whitespace-pre-wrap">{profile.bio}</p> : <p className="mt-1.5 text-sm text-faint">No bio yet.</p>}
+              {profile.bio ? (
+                <p className="mt-1.5 text-sm leading-relaxed whitespace-pre-wrap">
+                  {profile.bio}
+                </p>
+              ) : (
+                <p className="mt-1.5 text-sm text-faint">No bio yet.</p>
+              )}
               <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
                 <span className="inline-flex items-center gap-1">
-                  <CalendarDays className="size-3.5" /> Joined {formatDate(profile.createdAt, { month: "long", year: "numeric" })}
+                  <CalendarDays className="size-3.5" /> Joined{" "}
+                  {formatDate(profile.createdAt, {
+                    month: "long",
+                    year: "numeric",
+                  })}
                 </span>
-                {profile.gender && <span className="capitalize">{profile.gender}</span>}
+                {profile.gender && (
+                  <span className="capitalize">{profile.gender}</span>
+                )}
                 {profile.age && <span>{profile.age} years</span>}
               </p>
             </div>
@@ -143,10 +204,17 @@ export default function ProfilePage() {
                     { replace: true },
                   )
                 }
-                className={cn("-mb-px border-b-2 px-2 pb-2 text-sm font-medium", tab === k ? "border-fg text-fg" : "border-transparent text-muted hover:text-fg")}
+                className={cn(
+                  "-mb-px border-b-2 px-2 pb-2 text-sm font-medium",
+                  tab === k
+                    ? "border-fg text-fg"
+                    : "border-transparent text-muted hover:text-fg",
+                )}
               >
                 {label}
-                {count != null && <span className="ml-1.5 text-faint">{count}</span>}
+                {count != null && (
+                  <span className="ml-1.5 text-faint">{count}</span>
+                )}
               </button>
             ))}
           </div>
@@ -163,9 +231,25 @@ export default function ProfilePage() {
               </section>
             )}
             {tab === "followers" &&
-              (isMe ? <UserList query={followers} emptyTitle="No followers yet" followerIds={followerIds} /> : <NotAvailable what="Followers" />)}
+              (isMe ? (
+                <UserList
+                  query={followers}
+                  emptyTitle="No followers yet"
+                  followerIds={followerIds}
+                />
+              ) : (
+                <NotAvailable what="Followers" />
+              ))}
             {tab === "following" &&
-              (isMe ? <UserList query={following} emptyTitle="You're not following anyone yet" followerIds={followerIds} /> : <NotAvailable what="Following" />)}
+              (isMe ? (
+                <UserList
+                  query={following}
+                  emptyTitle="You're not following anyone yet"
+                  followerIds={followerIds}
+                />
+              ) : (
+                <NotAvailable what="Following" />
+              ))}
           </div>
         </div>
       </div>

@@ -5,146 +5,153 @@
 /* Notion-inspired palette. Every surface reads from these variables so the
    whole app (including BlockNote and dialogs) switches theme together. */
 :root {
-  --bg: #ffffff;
-  --bg-sidebar: #f8f8f7;
-  --bg-elevated: #ffffff;
-  --bg-hover: rgba(55, 53, 47, 0.06);
-  --bg-active: rgba(55, 53, 47, 0.1);
-  --bg-subtle: rgba(55, 53, 47, 0.03);
-  --fg: rgb(55, 53, 47);
-  --fg-muted: rgba(55, 53, 47, 0.65);
-  --fg-faint: rgba(55, 53, 47, 0.45);
-  --border: rgba(55, 53, 47, 0.09);
-  --border-strong: rgba(55, 53, 47, 0.16);
-  --accent: #2383e2;
-  --accent-hover: #0077d4;
-  --accent-soft: rgba(35, 131, 226, 0.1);
-  --danger: #eb5757;
-  --danger-soft: rgba(235, 87, 87, 0.1);
-  --success: #448361;
-  --warning: #cb912f;
-  --shadow-menu: 0 0 0 1px rgba(15, 15, 15, 0.05), 0 3px 6px rgba(15, 15, 15, 0.1), 0 9px 24px rgba(15, 15, 15, 0.2);
-  color-scheme: light;
+    --bg: #ffffff;
+    --bg-sidebar: #f8f8f7;
+    --bg-elevated: #ffffff;
+    --bg-hover: rgba(55, 53, 47, 0.06);
+    --bg-active: rgba(55, 53, 47, 0.1);
+    --bg-subtle: rgba(55, 53, 47, 0.03);
+    --fg: rgb(55, 53, 47);
+    --fg-muted: rgba(55, 53, 47, 0.65);
+    --fg-faint: rgba(55, 53, 47, 0.45);
+    --border: rgba(55, 53, 47, 0.09);
+    --border-strong: rgba(55, 53, 47, 0.16);
+    --accent: #2383e2;
+    --accent-hover: #0077d4;
+    --accent-soft: rgba(35, 131, 226, 0.1);
+    --danger: #eb5757;
+    --danger-soft: rgba(235, 87, 87, 0.1);
+    --success: #448361;
+    --warning: #cb912f;
+    --shadow-menu:
+        0 0 0 1px rgba(15, 15, 15, 0.05), 0 3px 6px rgba(15, 15, 15, 0.1),
+        0 9px 24px rgba(15, 15, 15, 0.2);
+    color-scheme: light;
 }
 
 .dark {
-  --bg: #191919;
-  --bg-sidebar: #202020;
-  --bg-elevated: #252525;
-  --bg-hover: rgba(255, 255, 255, 0.055);
-  --bg-active: rgba(255, 255, 255, 0.09);
-  --bg-subtle: rgba(255, 255, 255, 0.03);
-  --fg: rgba(255, 255, 255, 0.86);
-  --fg-muted: rgba(255, 255, 255, 0.5);
-  --fg-faint: rgba(255, 255, 255, 0.32);
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.14);
-  --accent: #2e8ae6;
-  --accent-hover: #4a9bec;
-  --accent-soft: rgba(46, 138, 230, 0.16);
-  --danger: #ff6b6b;
-  --danger-soft: rgba(255, 107, 107, 0.14);
-  --success: #5fb185;
-  --warning: #e0a94b;
-  --shadow-menu: 0 0 0 1px rgba(255, 255, 255, 0.07), 0 3px 6px rgba(0, 0, 0, 0.3), 0 9px 24px rgba(0, 0, 0, 0.45);
-  color-scheme: dark;
+    --bg: #191919;
+    --bg-sidebar: #202020;
+    --bg-elevated: #252525;
+    --bg-hover: rgba(255, 255, 255, 0.055);
+    --bg-active: rgba(255, 255, 255, 0.09);
+    --bg-subtle: rgba(255, 255, 255, 0.03);
+    --fg: rgba(255, 255, 255, 0.86);
+    --fg-muted: rgba(255, 255, 255, 0.5);
+    --fg-faint: rgba(255, 255, 255, 0.32);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.14);
+    --accent: #2e8ae6;
+    --accent-hover: #4a9bec;
+    --accent-soft: rgba(46, 138, 230, 0.16);
+    --danger: #ff6b6b;
+    --danger-soft: rgba(255, 107, 107, 0.14);
+    --success: #5fb185;
+    --warning: #e0a94b;
+    --shadow-menu:
+        0 0 0 1px rgba(255, 255, 255, 0.07), 0 3px 6px rgba(0, 0, 0, 0.3),
+        0 9px 24px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
 }
 
 @theme {
-  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
-  --font-serif: Lyon-Text, Georgia, ui-serif, serif;
-  --font-mono: iawriter-mono, Nitti, Menlo, Courier, monospace;
+    --font-sans:
+        ui-sans-serif, -apple-system, BlinkMacSystemFont,
+        "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji",
+        Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+    --font-serif: Lyon-Text, Georgia, ui-serif, serif;
+    --font-mono: iawriter-mono, Nitti, Menlo, Courier, monospace;
 
-  --color-bg: var(--bg);
-  --color-sidebar: var(--bg-sidebar);
-  --color-elevated: var(--bg-elevated);
-  --color-hover: var(--bg-hover);
-  --color-active: var(--bg-active);
-  --color-subtle: var(--bg-subtle);
-  --color-fg: var(--fg);
-  --color-muted: var(--fg-muted);
-  --color-faint: var(--fg-faint);
-  --color-line: var(--border);
-  --color-line-strong: var(--border-strong);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-accent-soft: var(--accent-soft);
-  --color-danger: var(--danger);
-  --color-danger-soft: var(--danger-soft);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
+    --color-bg: var(--bg);
+    --color-sidebar: var(--bg-sidebar);
+    --color-elevated: var(--bg-elevated);
+    --color-hover: var(--bg-hover);
+    --color-active: var(--bg-active);
+    --color-subtle: var(--bg-subtle);
+    --color-fg: var(--fg);
+    --color-muted: var(--fg-muted);
+    --color-faint: var(--fg-faint);
+    --color-line: var(--border);
+    --color-line-strong: var(--border-strong);
+    --color-accent: var(--accent);
+    --color-accent-hover: var(--accent-hover);
+    --color-accent-soft: var(--accent-soft);
+    --color-danger: var(--danger);
+    --color-danger-soft: var(--danger-soft);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
 
-  --shadow-menu: var(--shadow-menu);
+    --shadow-menu: var(--shadow-menu);
 }
 
 html,
 body,
 #root {
-  height: 100%;
+    height: 100%;
 }
 
 body {
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font-sans);
-  font-size: 14px;
-  -webkit-font-smoothing: antialiased;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: rgba(35, 131, 226, 0.28);
+    background: rgba(35, 131, 226, 0.28);
 }
 
 * {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-strong) transparent;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
 }
 
 button {
-  cursor: pointer;
+    cursor: pointer;
 }
 button:disabled {
-  cursor: default;
+    cursor: default;
 }
 
 /* ---------- BlockNote integration ---------- */
 /* Selector specificity beats BlockNote's own (lazily loaded) stylesheet. */
 .nexid-editor .bn-container[data-color-scheme] {
-  --bn-font-family: var(--editor-font, var(--font-sans));
-  --bn-colors-editor-background: transparent;
-  --bn-colors-editor-text: var(--fg);
-  --bn-colors-menu-background: var(--bg-elevated);
-  --bn-colors-menu-text: var(--fg);
-  --bn-colors-tooltip-background: var(--bg-elevated);
-  --bn-colors-tooltip-text: var(--fg);
-  --bn-colors-hovered-background: var(--bg-hover);
-  --bn-colors-selected-background: var(--bg-active);
-  --bn-colors-border: var(--border);
-  --bn-colors-side-menu: var(--fg-faint);
+    --bn-font-family: var(--editor-font, var(--font-sans));
+    --bn-colors-editor-background: transparent;
+    --bn-colors-editor-text: var(--fg);
+    --bn-colors-menu-background: var(--bg-elevated);
+    --bn-colors-menu-text: var(--fg);
+    --bn-colors-tooltip-background: var(--bg-elevated);
+    --bn-colors-tooltip-text: var(--fg);
+    --bn-colors-hovered-background: var(--bg-hover);
+    --bn-colors-selected-background: var(--bg-active);
+    --bn-colors-border: var(--border);
+    --bn-colors-side-menu: var(--fg-faint);
 }
 .nexid-editor .bn-editor {
-  padding-inline: 54px;
-  font-size: var(--editor-size, 16px);
-  background: transparent;
+    padding-inline: 54px;
+    font-size: var(--editor-size, 16px);
+    background: transparent;
 }
 @media (max-width: 640px) {
-  .nexid-editor .bn-editor {
-    padding-inline: 24px;
-  }
+    .nexid-editor .bn-editor {
+        padding-inline: 24px;
+    }
 }
 
 /* ---------- Excalidraw integration ---------- */
 .nexid-canvas .excalidraw {
-  --color-primary: var(--accent);
+    --color-primary: var(--accent);
 }
 
 /* ---------- cmdk ---------- */
 [cmdk-item][data-selected="true"] {
-  background: var(--bg-hover);
+    background: var(--bg-hover);
 }
 [cmdk-group-heading] {
-  padding: 8px 12px 4px;
-  font-size: 12px;
-  color: var(--fg-muted);
-  font-weight: 500;
+    padding: 8px 12px 4px;
+    font-size: 12px;
+    color: var(--fg-muted);
+    font-weight: 500;
 }

@@ -17,7 +17,17 @@ const SIZES = {
 };
 
 export const Button = forwardRef(function Button(
-  { variant = "secondary", size = "md", loading = false, icon: Icon, className, children, disabled, type = "button", ...props },
+  {
+    variant = "secondary",
+    size = "md",
+    loading = false,
+    icon: Icon,
+    className,
+    children,
+    disabled,
+    type = "button",
+    ...props
+  },
   ref,
 ) {
   return (
@@ -34,13 +44,20 @@ export const Button = forwardRef(function Button(
       )}
       {...props}
     >
-      {loading ? <Spinner className="size-3.5" /> : Icon ? <Icon className="size-4 shrink-0" strokeWidth={1.8} /> : null}
+      {loading ? (
+        <Spinner className="size-3.5" />
+      ) : Icon ? (
+        <Icon className="size-4 shrink-0" strokeWidth={1.8} />
+      ) : null}
       {children}
     </button>
   );
 });
 
-export const IconButton = forwardRef(function IconButton({ icon: Icon, label, className, size = "md", active, ...props }, ref) {
+export const IconButton = forwardRef(function IconButton(
+  { icon: Icon, label, className, size = "md", active, ...props },
+  ref,
+) {
   return (
     <button
       ref={ref}
@@ -56,7 +73,10 @@ export const IconButton = forwardRef(function IconButton({ icon: Icon, label, cl
       )}
       {...props}
     >
-      <Icon className={size === "sm" ? "size-3.5" : "size-4"} strokeWidth={1.8} />
+      <Icon
+        className={size === "sm" ? "size-3.5" : "size-4"}
+        strokeWidth={1.8}
+      />
     </button>
   );
 });

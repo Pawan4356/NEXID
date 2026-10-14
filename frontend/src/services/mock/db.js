@@ -47,7 +47,9 @@ export function persist() {
   try {
     localStorage.setItem(storageKey(currentUser.id), JSON.stringify(cache));
   } catch (err) {
-    throw new MockError("Browser storage is full; the change was not saved.", { cause: err });
+    throw new MockError("Browser storage is full; the change was not saved.", {
+      cause: err,
+    });
   }
 }
 
@@ -65,7 +67,9 @@ export class MockError extends Error {
 }
 
 export const uid = () =>
-  typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
+  typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2) + Date.now().toString(36);
 
 export const now = () => new Date().toISOString();
 

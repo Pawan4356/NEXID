@@ -5,15 +5,24 @@ import { toast } from "sonner";
 import { notesMock } from "../services/mock";
 import { qk } from "../lib/queryKeys";
 
-export const useNotes = () => useQuery({ queryKey: qk.notes, queryFn: notesMock.list });
+export const useNotes = () =>
+  useQuery({ queryKey: qk.notes, queryFn: notesMock.list });
 
-export const useNote = (id) => useQuery({ queryKey: qk.note(id), queryFn: () => notesMock.get(id), enabled: !!id, retry: false });
+export const useNote = (id) =>
+  useQuery({
+    queryKey: qk.note(id),
+    queryFn: () => notesMock.get(id),
+    enabled: !!id,
+    retry: false,
+  });
 
 function useWriteThrough() {
   const qc = useQueryClient();
   return (note) => {
     qc.setQueryData(qk.note(note.id), note);
-    qc.setQueryData(qk.notes, (list) => (list ? list.map((n) => (n.id === note.id ? note : n)) : list));
+    qc.setQueryData(qk.notes, (list) =>
+      list ? list.map((n) => (n.id === note.id ? note : n)) : list,
+    );
   };
 }
 
@@ -31,7 +40,10 @@ export function useCreateNote() {
 
 export function useUpdateNote() {
   const write = useWriteThrough();
-  return useMutation({ mutationFn: ({ id, patch }) => notesMock.update(id, patch), onSuccess: write });
+  return useMutation({
+    mutationFn: ({ id, patch }) => notesMock.update(id, patch),
+    onSuccess: write,
+  });
 }
 
 export function useDuplicateNote() {
@@ -66,7 +78,14 @@ export function useNoteTree() {
   const query = useNotes();
   const notes = query.data;
   const tree = useMemo(() => {
-    if (!notes) return { notes: [], byId: new Map(), children: new Map(), ancestors: () => [], countDescendants: () => 0 };
+    if (!notes)
+      return {
+        notes: [],
+        byId: new Map(),
+        children: new Map(),
+        ancestors: () => [],
+        countDescendants: () => 0,
+      };
     const byId = new Map(notes.map((n) => [n.id, n]));
     const children = new Map();
     for (const n of notes) {
@@ -74,7 +93,8 @@ export function useNoteTree() {
       if (!children.has(key)) children.set(key, []);
       children.get(key).push(n);
     }
-    for (const list of children.values()) list.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    for (const list of children.values())
+      list.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
     const ancestors = (id) => {
       const out = [];
       let cur = byId.get(id);
@@ -84,7 +104,11 @@ export function useNoteTree() {
       }
       return out;
     };
-    const countDescendants = (id) => (children.get(id) ?? []).reduce((acc, c) => acc + 1 + countDescendants(c.id), 0);
+    const countDescendants = (id) =>
+      (children.get(id) ?? []).reduce(
+        (acc, c) => acc + 1 + countDescendants(c.id),
+        0,
+      );
     return { notes, byId, children, ancestors, countDescendants };
   }, [notes]);
   return { isLoading: query.isLoading, error: query.error, ...tree };

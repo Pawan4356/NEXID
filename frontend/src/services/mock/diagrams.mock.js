@@ -8,7 +8,10 @@ const find = (d, id) => {
 };
 
 // List responses omit the (potentially large) scene.
-const summary = ({ scene, skeleton, ...rest }) => ({ ...rest, elementCount: scene?.elements?.length ?? skeleton?.length ?? 0 });
+const summary = ({ scene, skeleton, ...rest }) => ({
+  ...rest,
+  elementCount: scene?.elements?.length ?? skeleton?.length ?? 0,
+});
 
 export const list = () => mockCall((d) => d.diagrams.map(summary));
 
@@ -44,7 +47,8 @@ export const update = (id, patch) =>
     }
     if (visibility !== undefined) diagram.visibility = visibility;
     if (isFavorite !== undefined) diagram.isFavorite = isFavorite;
-    if (title !== undefined || scene !== undefined || visibility !== undefined) diagram.updatedAt = now();
+    if (title !== undefined || scene !== undefined || visibility !== undefined)
+      diagram.updatedAt = now();
     persist();
     return summary(diagram);
   });
@@ -60,7 +64,15 @@ export const duplicate = (id) =>
   mockCall((d) => {
     const src = find(d, id);
     const ts = now();
-    const copy = { ...structuredClone(src), id: uid(), title: `${src.title} (copy)`, isFavorite: false, createdAt: ts, updatedAt: ts, lastViewedAt: null };
+    const copy = {
+      ...structuredClone(src),
+      id: uid(),
+      title: `${src.title} (copy)`,
+      isFavorite: false,
+      createdAt: ts,
+      updatedAt: ts,
+      lastViewedAt: null,
+    };
     d.diagrams.unshift(copy);
     persist();
     return summary(copy);
@@ -70,7 +82,9 @@ export const remove = (id) =>
   mockCall((d) => {
     find(d, id);
     d.diagrams = d.diagrams.filter((g) => g.id !== id);
-    d.comments = d.comments.filter((c) => !(c.resourceType === "diagram" && c.resourceId === id));
+    d.comments = d.comments.filter(
+      (c) => !(c.resourceType === "diagram" && c.resourceId === id),
+    );
     delete d.shares[`diagram:${id}`];
     persist();
     return id;

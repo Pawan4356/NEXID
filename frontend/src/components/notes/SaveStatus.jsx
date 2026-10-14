@@ -3,7 +3,12 @@ import { Spinner, Tooltip } from "../ui";
 import { timeAgo } from "../../lib/utils";
 
 /** Honest autosave indicator: "Saved" only after the write resolved. */
-export function SaveStatus({ status, updatedAt, onRetry, where = "this browser" }) {
+export function SaveStatus({
+  status,
+  updatedAt,
+  onRetry,
+  where = "this browser",
+}) {
   if (status === "pending" || status === "saving")
     return (
       <span className="flex items-center gap-1.5 text-xs text-faint">
@@ -12,7 +17,10 @@ export function SaveStatus({ status, updatedAt, onRetry, where = "this browser" 
     );
   if (status === "error")
     return (
-      <button onClick={onRetry} className="flex items-center gap-1 rounded px-1 text-xs text-danger hover:bg-danger-soft">
+      <button
+        onClick={onRetry}
+        className="flex items-center gap-1 rounded px-1 text-xs text-danger hover:bg-danger-soft"
+      >
         <AlertCircle className="size-3.5" /> Not saved — retry
       </button>
     );

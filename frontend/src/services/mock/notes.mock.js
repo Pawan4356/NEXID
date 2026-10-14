@@ -10,10 +10,12 @@ const find = (d, id) => {
 const descendantsOf = (d, id) => {
   const out = [];
   const walk = (pid) =>
-    d.notes.filter((n) => n.parentId === pid).forEach((n) => {
-      out.push(n);
-      walk(n.id);
-    });
+    d.notes
+      .filter((n) => n.parentId === pid)
+      .forEach((n) => {
+        out.push(n);
+        walk(n.id);
+      });
   walk(id);
   return out;
 };
@@ -22,7 +24,12 @@ export const list = () => mockCall((d) => d.notes);
 
 export const get = (id) => mockCall((d) => find(d, id));
 
-export const create = ({ parentId = null, title = "", icon = "📄", content } = {}) =>
+export const create = ({
+  parentId = null,
+  title = "",
+  icon = "📄",
+  content,
+} = {}) =>
   mockCall((d) => {
     if (parentId) find(d, parentId);
     const ts = now();
@@ -35,7 +42,12 @@ export const create = ({ parentId = null, title = "", icon = "📄", content } =
       content: content ?? [{ type: "paragraph", content: "" }],
       visibility: "private",
       isFavorite: false,
-      settings: { fullWidth: false, smallText: false, font: "default", locked: false },
+      settings: {
+        fullWidth: false,
+        smallText: false,
+        font: "default",
+        locked: false,
+      },
       createdAt: ts,
       updatedAt: ts,
       lastViewedAt: ts,
@@ -45,15 +57,25 @@ export const create = ({ parentId = null, title = "", icon = "📄", content } =
     return note;
   });
 
-const EDITABLE = ["title", "icon", "content", "visibility", "isFavorite", "settings", "parentId"];
+const EDITABLE = [
+  "title",
+  "icon",
+  "content",
+  "visibility",
+  "isFavorite",
+  "settings",
+  "parentId",
+];
 
 export const update = (id, patch) =>
   mockCall((d) => {
     const note = find(d, id);
     for (const key of Object.keys(patch)) {
-      if (!EDITABLE.includes(key)) throw new MockError(`Field "${key}" cannot be updated.`);
+      if (!EDITABLE.includes(key))
+        throw new MockError(`Field "${key}" cannot be updated.`);
     }
-    if (patch.settings) patch = { ...patch, settings: { ...note.settings, ...patch.settings } };
+    if (patch.settings)
+      patch = { ...patch, settings: { ...note.settings, ...patch.settings } };
     // Favoriting is not a content edit, so it doesn't bump updatedAt.
     const contentChange = Object.keys(patch).some((k) => k !== "isFavorite");
     Object.assign(note, patch, contentChange ? { updatedAt: now() } : {});
@@ -98,7 +120,9 @@ export const remove = (id) =>
     find(d, id);
     const ids = new Set([id, ...descendantsOf(d, id).map((n) => n.id)]);
     d.notes = d.notes.filter((n) => !ids.has(n.id));
-    d.comments = d.comments.filter((c) => !(c.resourceType === "note" && ids.has(c.resourceId)));
+    d.comments = d.comments.filter(
+      (c) => !(c.resourceType === "note" && ids.has(c.resourceId)),
+    );
     ids.forEach((nid) => delete d.shares[`note:${nid}`]);
     d.todos.forEach((t) => {
       if (ids.has(t.noteId)) t.noteId = null;

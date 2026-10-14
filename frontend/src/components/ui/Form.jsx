@@ -5,17 +5,60 @@ import { cn } from "../../lib/utils";
 const fieldBase =
   "w-full rounded-md border bg-subtle px-2.5 text-sm text-fg placeholder:text-faint transition-colors outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft disabled:opacity-60";
 
-export const Input = forwardRef(function Input({ className, invalid, ...props }, ref) {
-  return <input ref={ref} aria-invalid={invalid || undefined} className={cn(fieldBase, "h-8", invalid ? "border-danger" : "border-line-strong", className)} {...props} />;
-});
-
-export const Textarea = forwardRef(function Textarea({ className, invalid, ...props }, ref) {
-  return <textarea ref={ref} aria-invalid={invalid || undefined} className={cn(fieldBase, "min-h-20 py-2", invalid ? "border-danger" : "border-line-strong", className)} {...props} />;
-});
-
-export const Select = forwardRef(function Select({ className, children, invalid, ...props }, ref) {
+export const Input = forwardRef(function Input(
+  { className, invalid, ...props },
+  ref,
+) {
   return (
-    <select ref={ref} aria-invalid={invalid || undefined} className={cn(fieldBase, "h-8 pr-1.5", invalid ? "border-danger" : "border-line-strong", className)} {...props}>
+    <input
+      ref={ref}
+      aria-invalid={invalid || undefined}
+      className={cn(
+        fieldBase,
+        "h-8",
+        invalid ? "border-danger" : "border-line-strong",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+
+export const Textarea = forwardRef(function Textarea(
+  { className, invalid, ...props },
+  ref,
+) {
+  return (
+    <textarea
+      ref={ref}
+      aria-invalid={invalid || undefined}
+      className={cn(
+        fieldBase,
+        "min-h-20 py-2",
+        invalid ? "border-danger" : "border-line-strong",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+
+export const Select = forwardRef(function Select(
+  { className, children, invalid, ...props },
+  ref,
+) {
+  return (
+    <select
+      ref={ref}
+      aria-invalid={invalid || undefined}
+      className={cn(
+        fieldBase,
+        "h-8 pr-1.5",
+        invalid ? "border-danger" : "border-line-strong",
+        className,
+      )}
+      {...props}
+    >
       {children}
     </select>
   );
@@ -25,7 +68,12 @@ export const PasswordInput = forwardRef(function PasswordInput(props, ref) {
   const [visible, setVisible] = useState(false);
   return (
     <div className="relative">
-      <Input ref={ref} type={visible ? "text" : "password"} className="pr-9" {...props} />
+      <Input
+        ref={ref}
+        type={visible ? "text" : "password"}
+        className="pr-9"
+        {...props}
+      />
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
@@ -50,7 +98,9 @@ export function Field({ label, error, hint, children, className }) {
           {label}
         </label>
       )}
-      {typeof children === "function" ? children({ id, "aria-describedby": describedBy, invalid: !!error }) : children}
+      {typeof children === "function"
+        ? children({ id, "aria-describedby": describedBy, invalid: !!error })
+        : children}
       {error ? (
         <p id={`${id}-err`} className="text-xs text-danger">
           {error}
@@ -73,9 +123,17 @@ export function Switch({ checked, onChange, label, disabled }) {
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={cn("relative h-[18px] w-[30px] shrink-0 rounded-full transition-colors disabled:opacity-50", checked ? "bg-accent" : "bg-line-strong")}
+      className={cn(
+        "relative h-[18px] w-[30px] shrink-0 rounded-full transition-colors disabled:opacity-50",
+        checked ? "bg-accent" : "bg-line-strong",
+      )}
     >
-      <span className={cn("absolute top-[2px] left-[2px] size-[14px] rounded-full bg-white shadow transition-transform", checked && "translate-x-3")} />
+      <span
+        className={cn(
+          "absolute top-[2px] left-[2px] size-[14px] rounded-full bg-white shadow transition-transform",
+          checked && "translate-x-3",
+        )}
+      />
     </button>
   );
 }
@@ -94,12 +152,20 @@ export function Checkbox({ checked, onChange, label, className, size = "md" }) {
       className={cn(
         "flex shrink-0 items-center justify-center rounded-[3px] border transition-colors",
         size === "sm" ? "size-3.5" : "size-4",
-        checked ? "border-accent bg-accent text-white" : "border-line-strong hover:bg-hover",
+        checked
+          ? "border-accent bg-accent text-white"
+          : "border-line-strong hover:bg-hover",
         className,
       )}
     >
       {checked && (
-        <svg viewBox="0 0 12 12" className="size-3" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          viewBox="0 0 12 12"
+          className="size-3"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <path d="M2.5 6.5l2.2 2.2 4.8-5" />
         </svg>
       )}

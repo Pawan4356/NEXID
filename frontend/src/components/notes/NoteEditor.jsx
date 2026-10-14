@@ -6,7 +6,10 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useTheme } from "../../context/ThemeContext";
 
-const NoteEditor = forwardRef(function NoteEditor({ initialContent, editable = true, onChange }, ref) {
+const NoteEditor = forwardRef(function NoteEditor(
+  { initialContent, editable = true, onChange },
+  ref,
+) {
   const { resolved } = useTheme();
   const editor = useCreateBlockNote({
     initialContent: initialContent?.length ? initialContent : undefined,
@@ -19,7 +22,10 @@ const NoteEditor = forwardRef(function NoteEditor({ initialContent, editable = t
       /** Append a block (reusing a trailing empty paragraph) and put the cursor in it. */
       addBlock: (type, props = {}) => {
         const last = editor.document.at(-1);
-        const lastEmpty = last && last.type === "paragraph" && (!last.content || last.content.length === 0);
+        const lastEmpty =
+          last &&
+          last.type === "paragraph" &&
+          (!last.content || last.content.length === 0);
         let target;
         if (lastEmpty) {
           editor.updateBlock(last, { type, props });
@@ -39,7 +45,14 @@ const NoteEditor = forwardRef(function NoteEditor({ initialContent, editable = t
     [editor],
   );
 
-  return <BlockNoteView editor={editor} editable={editable} theme={resolved} onChange={() => onChange?.(editor.document)} />;
+  return (
+    <BlockNoteView
+      editor={editor}
+      editable={editable}
+      theme={resolved}
+      onChange={() => onChange?.(editor.document)}
+    />
+  );
 });
 
 export default NoteEditor;

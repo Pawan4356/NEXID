@@ -11,9 +11,12 @@ const find = (d, id) => {
 };
 
 const validate = (fields) => {
-  if ("title" in fields && !String(fields.title).trim()) throw new MockError("A task needs a title.");
-  if ("status" in fields && !STATUSES.includes(fields.status)) throw new MockError("Invalid status.");
-  if ("priority" in fields && !PRIORITIES.includes(fields.priority)) throw new MockError("Invalid priority.");
+  if ("title" in fields && !String(fields.title).trim())
+    throw new MockError("A task needs a title.");
+  if ("status" in fields && !STATUSES.includes(fields.status))
+    throw new MockError("Invalid status.");
+  if ("priority" in fields && !PRIORITIES.includes(fields.priority))
+    throw new MockError("Invalid priority.");
 };
 
 export const list = () => mockCall((d) => d.todos);

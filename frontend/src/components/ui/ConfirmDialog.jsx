@@ -2,7 +2,15 @@ import { useState } from "react";
 import { Modal } from "./Overlay";
 import { Button } from "./Button";
 
-export function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel = "Delete", danger = true, onConfirm }) {
+export function ConfirmDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  confirmLabel = "Delete",
+  danger = true,
+  onConfirm,
+}) {
   const [busy, setBusy] = useState(false);
   const confirm = async () => {
     setBusy(true);
@@ -26,7 +34,12 @@ export function ConfirmDialog({ open, onOpenChange, title, description, confirmL
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button variant={danger ? "danger" : "primary"} loading={busy} onClick={confirm} autoFocus>
+          <Button
+            variant={danger ? "danger" : "primary"}
+            loading={busy}
+            onClick={confirm}
+            autoFocus
+          >
             {confirmLabel}
           </Button>
         </>

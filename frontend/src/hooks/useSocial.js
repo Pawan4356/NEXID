@@ -4,7 +4,13 @@ import { toast } from "sonner";
 import { followApi, userApi } from "../services/api";
 import { qk } from "../lib/queryKeys";
 
-export const useUser = (id) => useQuery({ queryKey: qk.user(id), queryFn: () => userApi.getUser(id), enabled: !!id, retry: false });
+export const useUser = (id) =>
+  useQuery({
+    queryKey: qk.user(id),
+    queryFn: () => userApi.getUser(id),
+    enabled: !!id,
+    retry: false,
+  });
 
 export const useUserSearch = (q, { enabled = true } = {}) =>
   useQuery({
@@ -14,8 +20,10 @@ export const useUserSearch = (q, { enabled = true } = {}) =>
     placeholderData: (prev) => prev,
   });
 
-export const useMyFollowers = () => useQuery({ queryKey: qk.myFollowers, queryFn: followApi.getMyFollowers });
-export const useMyFollowing = () => useQuery({ queryKey: qk.myFollowing, queryFn: followApi.getMyFollowing });
+export const useMyFollowers = () =>
+  useQuery({ queryKey: qk.myFollowers, queryFn: followApi.getMyFollowers });
+export const useMyFollowing = () =>
+  useQuery({ queryKey: qk.myFollowing, queryFn: followApi.getMyFollowing });
 
 /** Follow state for one user derived from GET /follow/following, plus a toggle. */
 export function useFollow(user) {
@@ -24,11 +32,17 @@ export function useFollow(user) {
   const isFollowing = !!following.data?.some((u) => u.id === user?.id);
 
   const mutation = useMutation({
-    mutationFn: (next) => (next ? followApi.follow(user.id) : followApi.unfollow(user.id)),
+    mutationFn: (next) =>
+      next ? followApi.follow(user.id) : followApi.unfollow(user.id),
     onSuccess: (_res, next) => {
-      toast.success(next ? `You're now following ${user.name}` : `Unfollowed ${user.name}`);
+      toast.success(
+        next ? `You're now following ${user.name}` : `Unfollowed ${user.name}`,
+      );
     },
-    onError: (err, next) => toast.error(`Couldn't ${next ? "follow" : "unfollow"} ${user.name}: ${err.message}`),
+    onError: (err, next) =>
+      toast.error(
+        `Couldn't ${next ? "follow" : "unfollow"} ${user.name}: ${err.message}`,
+      ),
     // Always re-read the truth from the server rather than guessing.
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: qk.myFollowing });
