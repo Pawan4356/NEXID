@@ -69,7 +69,7 @@ function TreeItem({ note, depth, tree, expanded, toggle, activeId }) {
     <li>
       <div
         className={cn(
-          "group relative flex h-[30px] items-center gap-1 rounded-md pr-1 text-sm text-muted hover:bg-hover",
+          "group relative flex h-7.5 items-center gap-1 rounded-md pr-1 text-sm text-muted hover:bg-hover",
           activeId === note.id && "bg-active font-medium text-fg",
         )}
         style={{ paddingLeft: 4 + depth * 14 }}
@@ -102,7 +102,7 @@ function TreeItem({ note, depth, tree, expanded, toggle, activeId }) {
           </NavLink>
         )}
         {!renaming && (
-          <div className="flex opacity-0 group-hover:opacity-100 focus-within:opacity-100 has-[[data-state=open]]:opacity-100">
+          <div className="flex opacity-0 group-hover:opacity-100 focus-within:opacity-100 has-data-[state=open]:opacity-100">
             <NoteActionsMenu
               note={note}
               onRename={() => setRenaming(true)}

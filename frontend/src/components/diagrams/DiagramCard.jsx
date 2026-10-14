@@ -24,7 +24,7 @@ import { timeAgo } from "../../lib/utils";
 /** Simple grid-paper thumbnail; real previews would need a stored export. */
 function Thumb({ count }) {
   return (
-    <div className="relative flex h-32 items-center justify-center overflow-hidden rounded-t-lg border-b border-line bg-subtle bg-[radial-gradient(var(--border-strong)_1px,transparent_1px)] [background-size:14px_14px]">
+    <div className="relative flex h-32 items-center justify-center overflow-hidden rounded-t-lg border-b border-line bg-subtle bg-[radial-gradient(var(--border-strong)_1px,transparent_1px)] bg-size-[14px_14px]">
       <PenTool className="size-7 text-faint" strokeWidth={1.4} />
       <span className="absolute right-2 bottom-2 text-[11px] text-faint">
         {count} elements
@@ -52,7 +52,7 @@ export function DiagramCard({ diagram }) {
           </p>
         </div>
       </Link>
-      <div className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100 has-[[data-state=open]]:opacity-100">
+      <div className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100 has-data-[state=open]:opacity-100">
         <Menu>
           <MenuTrigger>
             <IconButton

@@ -124,13 +124,13 @@ export function Switch({ checked, onChange, label, disabled }) {
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative h-[18px] w-[30px] shrink-0 rounded-full transition-colors disabled:opacity-50",
+        "relative h-4.5 w-7.5 shrink-0 rounded-full transition-colors disabled:opacity-50",
         checked ? "bg-accent" : "bg-line-strong",
       )}
     >
       <span
         className={cn(
-          "absolute top-[2px] left-[2px] size-[14px] rounded-full bg-white shadow transition-transform",
+          "absolute top-0.5 left-0.5 size-3.5 rounded-full bg-white shadow transition-transform",
           checked && "translate-x-3",
         )}
       />

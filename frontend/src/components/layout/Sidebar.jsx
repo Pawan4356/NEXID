@@ -51,7 +51,7 @@ function NavItem({ to, icon: Icon, children, end }) {
       end={end}
       className={({ isActive }) => navItemCls(isActive)}
     >
-      <Icon className="size-[18px] shrink-0" strokeWidth={1.7} />
+      <Icon className="size-4.5 shrink-0" strokeWidth={1.7} />
       <span className="truncate">{children}</span>
     </NavLink>
   );
@@ -174,7 +174,7 @@ function Favorites() {
           to={it.to}
           className={({ isActive }) => navItemCls(isActive)}
         >
-          <span className="flex size-[18px] shrink-0 items-center justify-center text-[15px]">
+          <span className="flex size-4.5 shrink-0 items-center justify-center text-[15px]">
             {it.lucide ? (
               <it.lucide className="size-4" strokeWidth={1.7} />
             ) : (
@@ -217,7 +217,7 @@ export function Sidebar() {
 
       <nav className="space-y-px px-2 pt-2">
         <button onClick={openSearch} className={navItemCls(false)}>
-          <Search className="size-[18px] shrink-0" strokeWidth={1.7} />
+          <Search className="size-4.5 shrink-0" strokeWidth={1.7} />
           <span className="flex-1">Search</span>
           <Kbd>{modKey}K</Kbd>
         </button>
@@ -265,7 +265,7 @@ export function Sidebar() {
           disabled={createNote.isPending}
           className={navItemCls(false)}
         >
-          <Plus className="size-[18px] shrink-0" strokeWidth={1.7} />
+          <Plus className="size-4.5 shrink-0" strokeWidth={1.7} />
           New page
         </button>
       </div>

@@ -220,7 +220,7 @@ export function ShareDialog({
                     onChange={(e) =>
                       share.setRole.mutate({ cid: c.id, role: e.target.value })
                     }
-                    className="h-7 w-[8.25rem] text-xs"
+                    className="h-7 w-33 text-xs"
                     aria-label={`Role for ${c.name}`}
                   >
                     {Object.entries(ROLE_LABELS).map(([v, l]) => (

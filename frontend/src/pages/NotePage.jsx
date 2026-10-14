@@ -140,7 +140,7 @@ function SubPages({ parentId }) {
   const kids = children.get(parentId) ?? [];
   if (!kids.length) return null;
   return (
-    <div className="mt-6 px-[54px] max-sm:px-6">
+    <div className="mt-6 px-13.5 max-sm:px-6">
       {kids.map((k) => (
         <Link
           key={k.id}
@@ -294,7 +294,7 @@ function NoteView({ note }) {
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className={cn("mx-auto pt-16 pb-40", width)}>
-            <div className="group px-[54px] max-sm:px-6">
+            <div className="group px-13.5 max-sm:px-6">
               <IconPicker
                 value={note.icon}
                 onChange={(icon) =>
@@ -302,7 +302,7 @@ function NoteView({ note }) {
                 }
                 trigger={
                   <button
-                    className="-ml-1 mb-2 flex size-[78px] items-center justify-center rounded-md text-[64px] leading-none hover:bg-hover"
+                    className="-ml-1 mb-2 flex size-19.5 items-center justify-center rounded-md text-[64px] leading-none hover:bg-hover"
                     aria-label="Change icon"
                     disabled={locked}
                   >
@@ -359,7 +359,7 @@ function NoteView({ note }) {
             >
               <Suspense
                 fallback={
-                  <div className="space-y-3 px-[54px] max-sm:px-6">
+                  <div className="space-y-3 px-13.5 max-sm:px-6">
                     <Skeleton className="h-5 w-3/4" />
                     <Skeleton className="h-5 w-1/2" />
                     <Skeleton className="h-5 w-2/3" />
@@ -373,7 +373,7 @@ function NoteView({ note }) {
                   onChange={onContent}
                 />
                 {!locked && (
-                  <div className="mt-3 flex flex-wrap gap-1 px-[54px] max-sm:px-6">
+                  <div className="mt-3 flex flex-wrap gap-1 px-13.5 max-sm:px-6">
                     <Button
                       size="sm"
                       variant="ghost"
@@ -441,7 +441,7 @@ export default function NotePage() {
     return (
       <div className="flex h-full flex-col">
         <Topbar />
-        <div className="mx-auto w-full max-w-[816px] space-y-4 px-[54px] pt-24">
+        <div className="mx-auto w-full max-w-204 space-y-4 px-13.5 pt-24">
           <Skeleton className="size-16" />
           <Skeleton className="h-10 w-2/3" />
           <Skeleton className="h-4 w-full" />

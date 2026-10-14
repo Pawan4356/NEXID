@@ -15,7 +15,7 @@ export function IconPicker({ value, onChange, trigger }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger>{trigger}</PopoverTrigger>
-      <PopoverContent className="w-[312px] p-2">
+      <PopoverContent className="w-78 p-2">
         <div className="mb-1 flex items-center justify-between px-1">
           <span className="text-xs font-medium text-muted">Icon</span>
           <button
