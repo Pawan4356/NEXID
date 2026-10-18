@@ -3,18 +3,21 @@ import { Link, useNavigate, useParams } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   CheckSquare,
-  FileText,
-  Heading2,
+  FilePlus2,
+  Heading3,
   Lock,
   MessageSquare,
   MoreHorizontal,
+  Network,
   Plus,
+  Search,
   Smile,
   Star,
 } from "lucide-react";
 import { Topbar } from "../components/layout/Topbar";
 import { NoteActionsMenu } from "../components/notes/NoteActionsMenu";
 import { IconPicker } from "../components/notes/IconPicker";
+import { NoteIcon } from "../components/notes/noteIcons";
 import { SaveStatus } from "../components/notes/SaveStatus";
 import { ShareDialog } from "../components/sharing/ShareDialog";
 import { VISIBILITY } from "../components/sharing/visibility";
@@ -25,6 +28,10 @@ import {
   EmptyState,
   IconButton,
   MenuLabel,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
   MenuSeparator,
   MockBadge,
   Skeleton,
@@ -38,6 +45,7 @@ import {
   useNoteTree,
   useUpdateNote,
 } from "../hooks/useNotes";
+import { useDiagramMutations, useDiagrams } from "../hooks/useDiagrams";
 import { useComments } from "../hooks/useCollab";
 import { useAutosave } from "../hooks/useUtils";
 import { qk } from "../lib/queryKeys";
@@ -147,7 +155,7 @@ function SubPages({ parentId }) {
           to={`/notes/${k.id}`}
           className="flex items-center gap-2 rounded px-1 py-1 text-[15px] hover:bg-hover"
         >
-          <span>{k.icon}</span>
+          <NoteIcon name={k.icon} className="size-4 shrink-0" />
           <span className="border-b border-line-strong font-medium">
             {k.title || "Untitled"}
           </span>
@@ -163,11 +171,15 @@ function NoteView({ note }) {
   const editorRef = useRef(null);
   const update = useUpdateNote();
   const createNote = useCreateNote();
+  const createDiagram = useDiagramMutations().create;
+  const { data: diagrams = [] } = useDiagrams();
   const markViewed = useMarkNoteViewed();
-  const { ancestors } = useNoteTree();
+  const { ancestors, notes } = useNoteTree();
   const comments = useComments("note", note.id);
   const [title, setTitle] = useState(note.title);
   const [showComments, setShowComments] = useState(false);
+  const [fileSearch, setFileSearch] = useState("");
+  const [diagramSearch, setDiagramSearch] = useState("");
   const [wordCount, setWordCount] = useState(
     () => blocksToText(note.content).split(/\s+/).filter(Boolean).length,
   );
@@ -192,6 +204,13 @@ function NoteView({ note }) {
 
   const onContent = (blocks) => {
     setWordCount(blocksToText(blocks).split(/\s+/).filter(Boolean).length);
+    // Reflect checklist changes in the sidebar immediately; persistence remains debounced.
+    qc.setQueryData(qk.note(note.id), (current) =>
+      current ? { ...current, content: blocks } : current,
+    );
+    qc.setQueryData(qk.notes, (list) =>
+      list?.map((n) => (n.id === note.id ? { ...n, content: blocks } : n)),
+    );
     autosave.schedule({ content: blocks });
   };
 
@@ -203,7 +222,7 @@ function NoteView({ note }) {
   const crumbs = [...ancestors(note.id), { ...note, title }].map((n) => ({
     to: n.id === note.id ? undefined : `/notes/${n.id}`,
     label: n.title || "Untitled",
-    icon: n.icon,
+    icon: <NoteIcon name={n.icon} className="size-4" />,
   }));
   const V = VISIBILITY[note.visibility];
   const width = note.settings.fullWidth
@@ -216,6 +235,37 @@ function NoteView({ note }) {
       { parentId: note.id },
       { onSuccess: (n) => navigate(`/notes/${n.id}`) },
     );
+
+  const addFileReference = (referencedNote) =>
+    editorRef.current?.addInline("fileReferenceInline", {
+      noteId: referencedNote.id,
+      title: referencedNote.title,
+    });
+
+  const addDiagramSection = (diagram) =>
+    editorRef.current?.addBlock("diagramSection", {
+      diagramId: diagram.id,
+      title: diagram.title,
+    });
+
+  const newDiagramSection = () =>
+    createDiagram.mutate(
+      {},
+      { onSuccess: (diagram) => addDiagramSection(diagram) },
+    );
+
+  const searchableNotes = notes
+    .filter((candidate) => candidate.id !== note.id)
+    .filter((candidate) =>
+      (candidate.title || "Untitled page")
+        .toLowerCase()
+        .includes(fileSearch.trim().toLowerCase()),
+    );
+  const searchableDiagrams = diagrams.filter((diagram) =>
+    (diagram.title || "Untitled diagram")
+      .toLowerCase()
+      .includes(diagramSearch.trim().toLowerCase()),
+  );
 
   return (
     <div className="flex h-full min-h-0">
@@ -306,7 +356,7 @@ function NoteView({ note }) {
                     aria-label="Change icon"
                     disabled={locked}
                   >
-                    {note.icon}
+                    <NoteIcon name={note.icon} className="size-14" strokeWidth={1.5} />
                   </button>
                 }
               />
@@ -346,7 +396,6 @@ function NoteView({ note }) {
                     <Lock className="size-3.5" /> Locked
                   </span>
                 )}
-                <MockBadge detail="This page is stored in your browser's localStorage. The notes API doesn't exist yet." />
               </div>
             </div>
 
@@ -373,18 +422,10 @@ function NoteView({ note }) {
                   onChange={onContent}
                 />
                 {!locked && (
-                  <div className="mt-3 flex flex-wrap gap-1 px-13.5 max-sm:px-6">
+                  <div className="mt-3 flex flex-wrap items-center gap-1 px-13.5 max-sm:px-6">
                     <Button
                       size="sm"
-                      variant="ghost"
-                      icon={FileText}
-                      onClick={() => editorRef.current?.addBlock("paragraph")}
-                    >
-                      Text
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
+                      variant="secondary"
                       icon={CheckSquare}
                       onClick={() =>
                         editorRef.current?.addBlock("checkListItem")
@@ -394,17 +435,88 @@ function NoteView({ note }) {
                     </Button>
                     <Button
                       size="sm"
-                      variant="ghost"
-                      icon={Heading2}
+                      variant="secondary"
+                      icon={Heading3}
                       onClick={() =>
-                        editorRef.current?.addBlock("heading", { level: 2 })
+                        editorRef.current?.addBlock("heading", { level: 3 })
                       }
                     >
                       Heading
                     </Button>
+                    <Menu onOpenChange={(open) => !open && setFileSearch("")}>
+                      <MenuTrigger>
+                        <Button size="sm" variant="secondary" icon={FilePlus2}>
+                          File reference
+                        </Button>
+                      </MenuTrigger>
+                      <MenuContent align="start" className="w-64">
+                        <div className="relative px-1 pb-1">
+                          <Search className="pointer-events-none absolute top-2 left-3 size-3.5 text-faint" />
+                          <input
+                            autoFocus
+                            value={fileSearch}
+                            onChange={(event) => setFileSearch(event.target.value)}
+                            onKeyDown={(event) => event.stopPropagation()}
+                            placeholder="Search pages"
+                            aria-label="Search pages"
+                            className="h-8 w-full rounded border border-line bg-bg pl-8 pr-2 text-sm outline-none placeholder:text-faint focus:border-accent"
+                          />
+                        </div>
+                        <MenuLabel>Reference a page</MenuLabel>
+                        {searchableNotes.length ? searchableNotes.map((candidate) => (
+                            <MenuItem
+                              key={candidate.id}
+                              onSelect={() => addFileReference(candidate)}
+                            >
+                              {candidate.title || "Untitled page"}
+                            </MenuItem>
+                          )) : (
+                            <MenuLabel>No matching pages</MenuLabel>
+                          )}
+                      </MenuContent>
+                    </Menu>
+                    <Menu onOpenChange={(open) => !open && setDiagramSearch("")}>
+                      <MenuTrigger>
+                        <Button size="sm" variant="secondary" icon={Network}>
+                          Diagram section
+                        </Button>
+                      </MenuTrigger>
+                      <MenuContent align="start" className="w-64">
+                        <MenuItem
+                          onSelect={newDiagramSection}
+                          disabled={createDiagram.isPending}
+                        >
+                          New diagram
+                        </MenuItem>
+                        <MenuSeparator />
+                        <div className="relative px-1 pb-1">
+                          <Search className="pointer-events-none absolute top-2 left-3 size-3.5 text-faint" />
+                          <input
+                            autoFocus
+                            value={diagramSearch}
+                            onChange={(event) => setDiagramSearch(event.target.value)}
+                            onKeyDown={(event) => event.stopPropagation()}
+                            placeholder="Search diagrams"
+                            aria-label="Search diagrams"
+                            className="h-8 w-full rounded border border-line bg-bg pl-8 pr-2 text-sm outline-none placeholder:text-faint focus:border-accent"
+                          />
+                        </div>
+                        <MenuLabel>Existing diagrams</MenuLabel>
+                        {searchableDiagrams.length ? searchableDiagrams.map((diagram) => (
+                          <MenuItem
+                            key={diagram.id}
+                            onSelect={() => addDiagramSection(diagram)}
+                          >
+                            {diagram.title || "Untitled diagram"}
+                          </MenuItem>
+                        )) : (
+                          <MenuLabel>No matching diagrams</MenuLabel>
+                        )}
+                      </MenuContent>
+                    </Menu>
                     <Button
                       size="sm"
-                      variant="ghost"
+                      variant="secondary"
                       icon={Plus}
                       onClick={addSubPage}
                       loading={createNote.isPending}

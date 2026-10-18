@@ -49,10 +49,13 @@ export function NoteActionsMenu({
   };
 
   const onDelete = async () => {
+    const parent =
+      location.pathname === `/notes/${note.id}`
+        ? ancestors(note.id).at(-1)
+        : null;
     const removed = await remove.mutateAsync(note.id);
     const viewing = removed.some((id) => location.pathname === `/notes/${id}`);
     if (viewing) {
-      const parent = ancestors(note.id).at(-1);
       navigate(parent ? `/notes/${parent.id}` : "/");
     }
     toast.success(

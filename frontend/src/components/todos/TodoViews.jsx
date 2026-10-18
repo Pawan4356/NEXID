@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Plus } from "lucide-react";
 import { Checkbox } from "../ui";
-import { useNotes } from "../../hooks/useNotes";
 import { useTodoMutations } from "../../hooks/useTodos";
 import { cn } from "../../lib/utils";
 import { DueDate, PriorityBadge, StatusBadge } from "./TodoBits";
 import { STATUS } from "./meta";
+import { NoteIcon } from "../notes/noteIcons";
 
 const toggleDone = (update, t) =>
   update.mutate({
@@ -14,53 +13,8 @@ const toggleDone = (update, t) =>
     patch: { status: t.status === "done" ? "todo" : "done" },
   });
 
-function QuickAdd({ defaults, className }) {
-  const { create } = useTodoMutations();
-  const [title, setTitle] = useState("");
-  const [active, setActive] = useState(false);
-  const submit = () => {
-    if (!title.trim()) return setActive(false);
-    create.mutate({ ...defaults, title }, { onSuccess: () => setTitle("") });
-  };
-  if (!active)
-    return (
-      <button
-        onClick={() => setActive(true)}
-        className={cn(
-          "flex h-8 w-full items-center gap-1.5 px-2 text-sm text-faint hover:bg-hover hover:text-muted",
-          className,
-        )}
-      >
-        <Plus className="size-4" /> New
-      </button>
-    );
-  return (
-    <input
-      autoFocus
-      value={title}
-      onChange={(e) => setTitle(e.target.value)}
-      onBlur={submit}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") submit();
-        if (e.key === "Escape") {
-          setTitle("");
-          setActive(false);
-        }
-      }}
-      placeholder="Task name, then Enter"
-      className={cn(
-        "h-8 w-full bg-transparent px-3 text-sm outline-none placeholder:text-faint",
-        className,
-      )}
-      aria-label="New task title"
-    />
-  );
-}
-
 export function TodoTable({ todos, onOpen }) {
   const { update } = useTodoMutations();
-  const { data: notes = [] } = useNotes();
-  const noteById = new Map(notes.map((n) => [n.id, n]));
   const cols =
     "grid grid-cols-[28px_minmax(0,1fr)_110px_96px_100px] md:grid-cols-[28px_minmax(0,1fr)_120px_100px_110px_180px]";
 
@@ -83,7 +37,6 @@ export function TodoTable({ todos, onOpen }) {
           </span>
         </div>
         {todos.map((t) => {
-          const note = noteById.get(t.noteId);
           return (
             <div
               key={t.id}
@@ -121,13 +74,14 @@ export function TodoTable({ todos, onOpen }) {
                 <DueDate date={t.dueDate} done={t.status === "done"} />
               </span>
               <span className="hidden truncate px-2 md:block">
-                {note ? (
+                {t.noteId ? (
                   <Link
-                    to={`/notes/${note.id}`}
+                    to={`/notes/${t.noteId}`}
                     onClick={(e) => e.stopPropagation()}
                     className="text-muted hover:text-fg hover:underline"
                   >
-                    {note.icon} {note.title || "Untitled"}
+                    <NoteIcon name={note.icon} className="mr-1 inline size-3.5" />
+                    {t.noteTitle || "Untitled"}
                   </Link>
                 ) : (
                   <span className="text-faint">—</span>
@@ -136,7 +90,6 @@ export function TodoTable({ todos, onOpen }) {
             </div>
           );
         })}
-        <QuickAdd className="border-b border-line" />
       </div>
     </div>
   );
@@ -214,7 +167,6 @@ export function TodoBoard({ todos, onOpen }) {
                 </article>
               ))}
             </div>
-            <QuickAdd defaults={{ status }} className="mt-1 rounded-md" />
           </section>
         );
       })}

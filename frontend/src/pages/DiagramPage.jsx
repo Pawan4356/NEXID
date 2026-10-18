@@ -5,6 +5,7 @@ import {
   Download,
   FileJson,
   Image,
+  ArrowLeft,
   MessageSquare,
   MoreHorizontal,
   PenTool,
@@ -176,6 +177,11 @@ function DiagramEditor({ diagram }) {
         </Topbar>
 
         <div className="flex items-center gap-3 border-b border-line px-4 pb-2">
+          <IconButton
+            icon={ArrowLeft}
+            label="Back to diagrams"
+            onClick={() => navigate("/diagrams")}
+          />
           <input
             value={title}
             onChange={(e) => {
@@ -186,7 +192,6 @@ function DiagramEditor({ diagram }) {
             aria-label="Diagram title"
             className="min-w-0 flex-1 bg-transparent text-xl font-semibold outline-none placeholder:text-faint"
           />
-          <MockBadge detail="Scenes are saved in this browser's localStorage. The diagrams API doesn't exist yet. Exports are real local downloads." />
         </div>
 
         <div className="relative min-h-0 flex-1">

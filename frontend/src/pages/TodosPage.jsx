@@ -138,7 +138,7 @@ export default function TodosPage() {
             </div>
             <MockBadge
               className="mb-1.5"
-              detail="Tasks are stored in this browser. The todos API doesn't exist yet."
+              detail="Tasks are checklist items stored inside your notes."
             />
           </div>
 

@@ -6,7 +6,6 @@ import {
   Button,
   EmptyState,
   ErrorState,
-  MockBadge,
   Skeleton,
 } from "../components/ui";
 import { useDiagramMutations, useDiagrams } from "../hooks/useDiagrams";
@@ -35,7 +34,6 @@ export default function DiagramsPage() {
                 Whiteboards and flowcharts, powered by Excalidraw.
               </p>
             </div>
-            <MockBadge className="mb-1.5" />
             <Button
               variant="primary"
               icon={Plus}

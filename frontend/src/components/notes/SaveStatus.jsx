@@ -7,7 +7,7 @@ export function SaveStatus({
   status,
   updatedAt,
   onRetry,
-  where = "this browser",
+  where = "Nexid",
 }) {
   if (status === "pending" || status === "saving")
     return (
@@ -25,10 +25,10 @@ export function SaveStatus({
       </button>
     );
   return (
-    <Tooltip content={`Saved to ${where} (local mock — no notes API yet)`}>
+    <Tooltip content={`Saved to ${where}`}>
       <span className="flex cursor-default items-center gap-1 text-xs text-faint">
         {status === "saved" && <Check className="size-3.5" />}
-        {status === "saved" ? "Saved locally" : `Edited ${timeAgo(updatedAt)}`}
+        {status === "saved" ? "Saved" : `Edited ${timeAgo(updatedAt)}`}
       </span>
     </Tooltip>
   );

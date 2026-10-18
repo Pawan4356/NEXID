@@ -2,12 +2,12 @@ import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { FileText, Plus, Search, Star } from "lucide-react";
 import { Topbar } from "../components/layout/Topbar";
+import { NoteIcon } from "../components/notes/noteIcons";
 import { VISIBILITY } from "../components/sharing/visibility";
 import {
   Button,
   EmptyState,
   ErrorState,
-  MockBadge,
   Select,
   Skeleton,
 } from "../components/ui";
@@ -58,7 +58,6 @@ export default function NotesPage() {
                 {notes.length} pages, including sub-pages.
               </p>
             </div>
-            <MockBadge className="mb-1.5" />
             <Button
               variant="primary"
               icon={Plus}
@@ -136,7 +135,7 @@ export default function NotesPage() {
                         className="flex items-start gap-3 px-2 py-2.5 hover:bg-subtle"
                       >
                         <span className="mt-0.5 text-lg leading-none">
-                          {n.icon}
+                          <NoteIcon name={n.icon} className="size-4" />
                         </span>
                         <div className="min-w-0 flex-1">
                           <p className="flex items-center gap-1.5 truncate text-sm font-medium">

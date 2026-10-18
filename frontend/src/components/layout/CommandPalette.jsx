@@ -3,23 +3,21 @@ import { useNavigate } from "react-router";
 import { Command } from "cmdk";
 import { Dialog } from "radix-ui";
 import {
-  CheckSquare,
   FilePlus,
   Moon,
   PenTool,
-  Plus,
   Search,
   Sun,
   Users,
 } from "lucide-react";
 import { useNotes, useCreateNote } from "../../hooks/useNotes";
 import { useDiagrams, useDiagramMutations } from "../../hooks/useDiagrams";
-import { useTodos } from "../../hooks/useTodos";
 import { useUserSearch } from "../../hooks/useSocial";
 import { useDebouncedValue } from "../../hooks/useUtils";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { Avatar, Spinner } from "../ui";
+import { NoteIcon } from "../notes/noteIcons";
 import { blocksToText, timeAgo } from "../../lib/utils";
 
 const itemCls =
@@ -41,7 +39,6 @@ export function CommandPalette({ open, onOpenChange }) {
   const { resolved, setTheme } = useTheme();
   const { data: notes = [] } = useNotes();
   const { data: diagrams = [] } = useDiagrams();
-  const { data: todos = [] } = useTodos();
   const createNote = useCreateNote();
   const { create: createDiagram } = useDiagramMutations();
   const debounced = useDebouncedValue(query.trim(), 250);
@@ -62,7 +59,7 @@ export function CommandPalette({ open, onOpenChange }) {
         <Dialog.Content className="fixed top-[14vh] left-1/2 z-50 w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-xl bg-elevated shadow-menu">
           <Dialog.Title className="sr-only">Search</Dialog.Title>
           <Dialog.Description className="sr-only">
-            Search pages, diagrams, tasks and people
+            Search pages, diagrams and people
           </Dialog.Description>
           <Command label="Search" loop filter={filter}>
             <div className="flex items-center gap-2 border-b border-line px-4">
@@ -70,7 +67,7 @@ export function CommandPalette({ open, onOpenChange }) {
               <Command.Input
                 value={query}
                 onValueChange={setQuery}
-                placeholder="Search pages, diagrams, tasks, people…"
+                placeholder="Search pages, diagrams, people…"
                 className="h-12 flex-1 bg-transparent text-[15px] outline-none placeholder:text-faint"
               />
               {people.isFetching && <Spinner className="size-3.5" />}
@@ -95,12 +92,6 @@ export function CommandPalette({ open, onOpenChange }) {
                   </Command.Item>
                   <Command.Item
                     className={itemCls}
-                    onSelect={() => go("/todos?new=1")}
-                  >
-                    <Plus className="size-4 text-muted" /> New task
-                  </Command.Item>
-                  <Command.Item
-                    className={itemCls}
                     onSelect={() =>
                       createDiagram.mutate(
                         {},
@@ -108,7 +99,7 @@ export function CommandPalette({ open, onOpenChange }) {
                       )
                     }
                   >
-                    <PenTool className="size-4 text-muted" /> New diagram
+                    <PenTool className="size-4 text-fg" /> New diagram
                   </Command.Item>
                   <Command.Item
                     className={itemCls}
@@ -137,7 +128,7 @@ export function CommandPalette({ open, onOpenChange }) {
                       className={itemCls}
                       onSelect={() => go(`/notes/${n.id}`)}
                     >
-                      <span className="w-4 text-center">{n.icon}</span>
+                      <NoteIcon name={n.icon} className="size-4 text-muted" />
                       <span className="flex-1 truncate">
                         {n.title || "Untitled"}
                       </span>
@@ -156,35 +147,11 @@ export function CommandPalette({ open, onOpenChange }) {
                     className={itemCls}
                     onSelect={() => go(`/diagrams/${d.id}`)}
                   >
-                    <PenTool className="size-4 text-muted" />
+                    <PenTool className="size-4 text-fg" />
                     <span className="flex-1 truncate">{d.title}</span>
                   </Command.Item>
                 ))}
               </Command.Group>
-
-              {query && (
-                <Command.Group heading="Tasks">
-                  {todos.map((t) => (
-                    <Command.Item
-                      key={t.id}
-                      value={`${t.title}\u241f${t.id}`}
-                      className={itemCls}
-                      onSelect={() => go(`/todos?task=${t.id}`)}
-                    >
-                      <CheckSquare className="size-4 text-muted" />
-                      <span
-                        className={
-                          t.status === "done"
-                            ? "flex-1 truncate text-muted line-through"
-                            : "flex-1 truncate"
-                        }
-                      >
-                        {t.title}
-                      </span>
-                    </Command.Item>
-                  ))}
-                </Command.Group>
-              )}
 
               {query && (people.data?.length ?? 0) > 0 && (
                 <Command.Group heading="People">

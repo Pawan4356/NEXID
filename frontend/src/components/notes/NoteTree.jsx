@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useMatch, useNavigate } from "react-router";
-import { ChevronRight, MoreHorizontal, Plus } from "lucide-react";
+import { Check, ChevronRight, MoreHorizontal, Plus } from "lucide-react";
 import {
   useCreateNote,
   useNoteTree,
@@ -8,8 +8,44 @@ import {
 } from "../../hooks/useNotes";
 import { useLocalStorageState } from "../../hooks/useUtils";
 import { NoteActionsMenu } from "./NoteActionsMenu";
+import { NoteIcon } from "./noteIcons";
 import { IconButton, Skeleton } from "../ui";
 import { cn } from "../../lib/utils";
+
+function getTodoProgress(content) {
+  const todos = [];
+  const collect = (blocks) => {
+    for (const block of blocks ?? []) {
+      if (block.type === "checkListItem") todos.push(block);
+      collect(block.children);
+    }
+  };
+  collect(content);
+  if (!todos.length) return null;
+  const completed = todos.filter((block) => block.props?.checked).length;
+  return { completed, total: todos.length, percent: (completed / todos.length) * 100 };
+}
+
+function TodoProgress({ content }) {
+  const progress = getTodoProgress(content);
+  if (!progress) return null;
+  const complete = progress.completed === progress.total;
+
+  return (
+    <span
+      className="flex size-4 shrink-0 items-center justify-center rounded-full"
+      style={{
+        background: complete
+          ? "var(--fg-faint)"
+          : `conic-gradient(var(--accent) ${progress.percent}%, var(--border) 0)`,
+      }}
+      aria-label={`${progress.completed} of ${progress.total} todos complete`}
+      role="img"
+    >
+      {complete && <Check className="size-3 text-bg" strokeWidth={3} />}
+    </span>
+  );
+}
 
 function RenameInput({ note, onDone }) {
   const update = useUpdateNote();
@@ -81,7 +117,7 @@ function TreeItem({ note, depth, tree, expanded, toggle, activeId }) {
           aria-expanded={isOpen}
         >
           <span className="text-[15px] leading-none group-hover:opacity-0">
-            {note.icon}
+            <NoteIcon name={note.icon} className="size-4" />
           </span>
           <ChevronRight
             className={cn(
@@ -95,10 +131,11 @@ function TreeItem({ note, depth, tree, expanded, toggle, activeId }) {
         ) : (
           <NavLink
             to={`/notes/${note.id}`}
-            className="min-w-0 flex-1 truncate py-1"
+            className="flex min-w-0 flex-1 items-center gap-1 py-1"
             onDoubleClick={() => setRenaming(true)}
           >
-            {note.title || "Untitled"}
+            <span className="min-w-0 flex-1 truncate">{note.title || "Untitled"}</span>
+            <TodoProgress content={note.content} />
           </NavLink>
         )}
         {!renaming && (

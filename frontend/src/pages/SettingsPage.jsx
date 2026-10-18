@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Monitor, Moon, Settings, Sun } from "lucide-react";
+import { LogOut, Monitor, Moon, Settings, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Topbar } from "../components/layout/Topbar";
@@ -24,6 +24,7 @@ import {
   validateProfile,
 } from "../lib/validation";
 import { cn } from "../lib/utils";
+import { useNavigate } from "react-router";
 
 function Section({ title, description, badge, children }) {
   return (
@@ -369,6 +370,25 @@ function MockDataSection() {
   );
 }
 
+function AccountSection() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const signOut = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (err) {
+      toast.error(`Couldn't log out: ${err.message}`);
+    }
+  };
+
+  return (
+    <Button variant="danger-ghost" icon={LogOut} onClick={signOut}>
+      Log out
+    </Button>
+  );
+}
+
 export default function SettingsPage() {
   return (
     <div className="flex h-full flex-col">
@@ -394,6 +414,9 @@ export default function SettingsPage() {
           </Section>
           <Section title="Local prototype data" badge={<MockBadge />}>
             <MockDataSection />
+          </Section>
+          <Section title="Account">
+            <AccountSection />
           </Section>
         </div>
       </div>

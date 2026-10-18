@@ -51,7 +51,7 @@ export default function PeoplePage() {
       <Topbar
         crumbs={[{ label: "People", icon: <Users className="size-4" /> }]}
       />
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
         <div className="mx-auto max-w-2xl px-6 pt-10 pb-24">
           <h1 className="text-[32px] font-bold tracking-tight">People</h1>
           <p className="mt-1 text-sm text-muted">

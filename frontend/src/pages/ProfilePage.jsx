@@ -1,6 +1,7 @@
 import { Link, useParams, useSearchParams } from "react-router";
-import { CalendarDays, FileText, Info, Users } from "lucide-react";
+import { CalendarDays, FileText, Users } from "lucide-react";
 import { Topbar } from "../components/layout/Topbar";
+import { NoteIcon } from "../components/notes/noteIcons";
 import { FollowButton } from "../components/social/FollowButton";
 import { UserRow, UserRowSkeleton } from "../components/social/UserRow";
 import {
@@ -12,8 +13,14 @@ import {
   Skeleton,
 } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
-import { useMyFollowers, useMyFollowing, useUser } from "../hooks/useSocial";
-import { useNotes } from "../hooks/useNotes";
+import {
+  useFollowers,
+  useFollowing,
+  useMyFollowers,
+  useMyFollowing,
+  useUser,
+} from "../hooks/useSocial";
+import { useNotes, usePublicNotes } from "../hooks/useNotes";
 import { cn, formatDate } from "../lib/utils";
 
 function UserList({ query, emptyTitle, followerIds }) {
@@ -37,32 +44,21 @@ function UserList({ query, emptyTitle, followerIds }) {
   );
 }
 
-function NotAvailable({ what }) {
-  return (
-    <EmptyState
-      icon={Info}
-      title={`${what} aren't available for other people yet`}
-      description={`The backend only exposes GET /follow/${what.toLowerCase()} for the logged-in user. A per-user endpoint (e.g. GET /follow/:userId/${what.toLowerCase()}) is needed.`}
-    />
-  );
-}
-
-function PublicPages({ isMe }) {
-  const { data: notes = [], isLoading } = useNotes();
-  if (!isMe)
-    return (
-      <p className="text-sm text-muted">
-        Other people's public pages need a notes API (e.g. GET
-        /users/:id/notes?visibility=public).
-      </p>
-    );
+function PublicPages({ isMe, userId }) {
+  const ownNotes = useNotes();
+  const publicNotes = usePublicNotes(isMe ? null : userId);
+  const notesQuery = isMe ? ownNotes : publicNotes;
+  const { data: notes = [], isLoading } = notesQuery;
+  if (notesQuery.error)
+    return <ErrorState error={notesQuery.error} onRetry={notesQuery.refetch} />;
   if (isLoading) return <Skeleton className="h-16" />;
   const pub = notes.filter((n) => n.visibility === "public");
   if (!pub.length)
     return (
       <p className="text-sm text-muted">
-        None of your pages are public. Change visibility from a page's Share
-        menu.
+        {isMe
+          ? "None of your pages are public. Change visibility from a page's Share menu."
+          : "This person hasn't published any public pages yet."}
       </p>
     );
   return (
@@ -73,7 +69,7 @@ function PublicPages({ isMe }) {
             to={`/notes/${n.id}`}
             className="flex items-center gap-2 rounded-lg border border-line px-3 py-2.5 hover:bg-hover"
           >
-            <span>{n.icon}</span>
+            <NoteIcon name={n.icon} className="size-4" />
             <span className="truncate text-sm font-medium">
               {n.title || "Untitled"}
             </span>
@@ -99,6 +95,10 @@ export default function ProfilePage() {
   const profile = isMe ? me : other.data;
   const followers = useMyFollowers();
   const following = useMyFollowing();
+  const publicFollowers = useFollowers(isMe ? null : userId);
+  const publicFollowing = useFollowing(isMe ? null : userId);
+  const followersQuery = isMe ? followers : publicFollowers;
+  const followingQuery = isMe ? following : publicFollowing;
   const followerIds = new Set((followers.data ?? []).map((u) => u.id));
 
   if (!isMe && other.isLoading)
@@ -139,8 +139,8 @@ export default function ProfilePage() {
 
   const tabs = [
     ["overview", "Overview"],
-    ["followers", "Followers", isMe ? followers.data?.length : null],
-    ["following", "Following", isMe ? following.data?.length : null],
+    ["followers", "Followers", followersQuery.data?.length],
+    ["following", "Following", followingQuery.data?.length],
   ];
 
   return (
@@ -155,7 +155,7 @@ export default function ProfilePage() {
           { label: profile.name },
         ]}
       />
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
         <div className="mx-auto max-w-2xl px-6 pt-12 pb-24">
           <div className="flex flex-wrap items-start gap-5">
             <Avatar user={profile} size="xl" />
@@ -227,29 +227,21 @@ export default function ProfilePage() {
                   <h2 className="text-sm font-medium">Public pages</h2>
                   {isMe && <MockBadge />}
                 </div>
-                <PublicPages isMe={isMe} />
+                <PublicPages isMe={isMe} userId={userId} />
               </section>
             )}
             {tab === "followers" &&
-              (isMe ? (
-                <UserList
-                  query={followers}
-                  emptyTitle="No followers yet"
-                  followerIds={followerIds}
-                />
-              ) : (
-                <NotAvailable what="Followers" />
-              ))}
+              <UserList
+                query={followersQuery}
+                emptyTitle="No followers yet"
+                followerIds={followerIds}
+              />}
             {tab === "following" &&
-              (isMe ? (
-                <UserList
-                  query={following}
-                  emptyTitle="You're not following anyone yet"
-                  followerIds={followerIds}
-                />
-              ) : (
-                <NotAvailable what="Following" />
-              ))}
+              <UserList
+                query={followingQuery}
+                emptyTitle="You're not following anyone yet"
+                followerIds={followerIds}
+              />}
           </div>
         </div>
       </div>

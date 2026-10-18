@@ -2,6 +2,11 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+select option {
+    background-color: var(--bg-elevated);
+    color: var(--fg);
+}
+
 /* Notion-inspired palette. Every surface reads from these variables so the
    whole app (including BlockNote and dialogs) switches theme together. */
 :root {
@@ -133,6 +138,18 @@ button:disabled {
     padding-inline: 54px;
     font-size: var(--editor-size, 16px);
     background: transparent;
+}
+.nexid-editor .bn-block-content[data-content-type="diagramSection"] {
+    width: 100%;
+}
+.nexid-editor .bn-block-outer:has(
+    .bn-block-content[data-content-type="fileReference"]
+),
+.nexid-editor .bn-block-outer:has(
+    .bn-block-content[data-content-type="diagramSection"]
+) {
+    outline: none !important;
+    box-shadow: none !important;
 }
 @media (max-width: 640px) {
     .nexid-editor .bn-editor {

@@ -1,31 +1,18 @@
 import { Link, useNavigate } from "react-router";
 import {
-  ArrowRight,
-  CheckSquare,
   Clock,
   FilePlus,
   Home,
   PenTool,
-  Plus,
   Star,
-  UserPlus,
-  Users,
 } from "lucide-react";
 import { Topbar } from "../components/layout/Topbar";
-import { DueDate, PriorityBadge } from "../components/todos/TodoBits";
-import {
-  Avatar,
-  Checkbox,
-  EmptyState,
-  MockBadge,
-  Skeleton,
-} from "../components/ui";
+import { NoteIcon } from "../components/notes/noteIcons";
+import { MockBadge, Skeleton } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
 import { useCreateNote, useNotes } from "../hooks/useNotes";
 import { useDiagramMutations, useDiagrams } from "../hooks/useDiagrams";
-import { useTodoMutations, useTodos } from "../hooks/useTodos";
-import { useMyFollowers, useMyFollowing } from "../hooks/useSocial";
-import { addDaysStr, blocksToText, cn, timeAgo, todayStr } from "../lib/utils";
+import { blocksToText, timeAgo } from "../lib/utils";
 
 function greeting() {
   const h = new Date().getHours();
@@ -73,7 +60,11 @@ function RecentCard({ item }) {
     >
       <div className="relative h-11 bg-hover">
         <span className="absolute -bottom-3 left-3 text-2xl leading-none">
-          {item.icon}
+          {item.iconComponent ? (
+            <item.iconComponent name={item.icon} className="size-5" />
+          ) : (
+            <PenTool className="size-5" />
+          )}
         </span>
       </div>
       <div className="flex flex-1 flex-col px-3 pt-5 pb-3">
@@ -88,73 +79,11 @@ function RecentCard({ item }) {
   );
 }
 
-function NetworkCard() {
-  const followers = useMyFollowers();
-  const following = useMyFollowing();
-  const stat = (q, label, tab) => (
-    <Link
-      to={`/people/me?tab=${tab}`}
-      className="flex-1 rounded-lg px-3 py-2 hover:bg-hover"
-    >
-      <div className="text-xl font-semibold">
-        {q.isLoading ? (
-          <Skeleton className="h-7 w-8" />
-        ) : q.error ? (
-          "—"
-        ) : (
-          q.data.length
-        )}
-      </div>
-      <p className="text-xs text-muted">{label}</p>
-    </Link>
-  );
-  const people = [...(following.data ?? [])].slice(0, 5);
-  return (
-    <section>
-      <SectionTitle
-        icon={Users}
-        action={
-          <Link to="/people" className="hover:text-fg">
-            Find people
-          </Link>
-        }
-      >
-        Your network
-      </SectionTitle>
-      <div className="rounded-xl border border-line p-2">
-        <div className="flex">
-          {stat(followers, "Followers", "followers")}
-          {stat(following, "Following", "following")}
-        </div>
-        {(followers.error || following.error) && (
-          <p className="px-3 pb-2 text-xs text-danger">
-            {(followers.error || following.error).message}
-          </p>
-        )}
-        {people.length > 0 && (
-          <div className="flex items-center gap-2 border-t border-line px-3 pt-2.5 pb-1">
-            <div className="flex -space-x-1.5">
-              {people.map((u) => (
-                <Avatar key={u.id} user={u} size="sm" ring />
-              ))}
-            </div>
-            <span className="truncate text-xs text-muted">
-              You follow {people.map((u) => u.name.split(" ")[0]).join(", ")}
-            </span>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
 export default function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { data: notes = [], isLoading: notesLoading } = useNotes();
   const { data: diagrams = [] } = useDiagrams();
-  const { data: todos = [], isLoading: todosLoading } = useTodos();
-  const { update: updateTodo } = useTodoMutations();
   const createNote = useCreateNote();
   const { create: createDiagram } = useDiagramMutations();
 
@@ -163,13 +92,15 @@ export default function HomePage() {
       id: n.id,
       to: `/notes/${n.id}`,
       icon: n.icon,
+      iconComponent: NoteIcon,
       title: n.title,
       at: n.lastViewedAt ?? n.updatedAt,
     })),
     ...diagrams.map((d) => ({
       id: d.id,
       to: `/diagrams/${d.id}`,
-      icon: "✏️",
+      icon: "pen-tool",
+      iconComponent: PenTool,
       title: d.title,
       at: d.lastViewedAt ?? d.updatedAt,
     })),
@@ -184,6 +115,7 @@ export default function HomePage() {
         id: n.id,
         to: `/notes/${n.id}`,
         icon: n.icon,
+        iconComponent: NoteIcon,
         title: n.title,
         sub: blocksToText(n.content, 120),
       })),
@@ -192,25 +124,12 @@ export default function HomePage() {
       .map((d) => ({
         id: d.id,
         to: `/diagrams/${d.id}`,
-        icon: "✏️",
+        icon: "pen-tool",
+        iconComponent: PenTool,
         title: d.title,
         sub: `Diagram · ${d.elementCount} elements`,
       })),
   ];
-
-  const open = todos.filter((t) => t.status !== "done");
-  const today = todayStr();
-  const counts = {
-    overdue: open.filter((t) => t.dueDate && t.dueDate < today).length,
-    today: open.filter((t) => t.dueDate === today).length,
-    week: open.filter(
-      (t) => t.dueDate && t.dueDate > today && t.dueDate <= addDaysStr(7),
-    ).length,
-    progress: open.filter((t) => t.status === "in_progress").length,
-  };
-  const upcoming = [...open]
-    .sort((a, b) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999"))
-    .slice(0, 6);
 
   return (
     <div className="flex h-full flex-col">
@@ -228,7 +147,7 @@ export default function HomePage() {
             })}
           </p>
 
-          <div className="mt-10 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mx-auto mt-10 grid max-w-xl gap-2 sm:grid-cols-2">
             <QuickAction
               icon={FilePlus}
               label="New page"
@@ -241,12 +160,6 @@ export default function HomePage() {
               }
             />
             <QuickAction
-              icon={Plus}
-              label="New task"
-              hint="Add to your todos"
-              onClick={() => navigate("/todos?new=1")}
-            />
-            <QuickAction
               icon={PenTool}
               label="New diagram"
               hint="Open a blank canvas"
@@ -256,12 +169,6 @@ export default function HomePage() {
                   { onSuccess: (d) => navigate(`/diagrams/${d.id}`) },
                 )
               }
-            />
-            <QuickAction
-              icon={UserPlus}
-              label="Find people"
-              hint="Search & follow"
-              onClick={() => navigate("/people")}
             />
           </div>
 
@@ -288,78 +195,7 @@ export default function HomePage() {
             )}
           </section>
 
-          <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px]">
-            <section>
-              <SectionTitle
-                icon={CheckSquare}
-                action={
-                  <Link
-                    to="/todos"
-                    className="inline-flex items-center gap-0.5 hover:text-fg"
-                  >
-                    All todos <ArrowRight className="size-3" />
-                  </Link>
-                }
-              >
-                Upcoming tasks
-              </SectionTitle>
-              <div className="mb-3 grid grid-cols-4 gap-2">
-                {[
-                  ["Overdue", counts.overdue, "text-danger"],
-                  ["Today", counts.today, "text-warning"],
-                  ["Next 7 days", counts.week, ""],
-                  ["In progress", counts.progress, "text-accent"],
-                ].map(([label, n, tone]) => (
-                  <div key={label} className="rounded-lg bg-subtle px-3 py-2">
-                    <p className={cn("text-lg font-semibold", n > 0 && tone)}>
-                      {todosLoading ? "–" : n}
-                    </p>
-                    <p className="truncate text-[11px] text-muted">{label}</p>
-                  </div>
-                ))}
-              </div>
-              {todosLoading ? (
-                <Skeleton className="h-40" />
-              ) : upcoming.length === 0 ? (
-                <EmptyState
-                  icon={CheckSquare}
-                  title="All caught up"
-                  description="No open tasks."
-                  className="py-8"
-                />
-              ) : (
-                <ul className="divide-y divide-line rounded-xl border border-line">
-                  {upcoming.map((t) => (
-                    <li
-                      key={t.id}
-                      className="flex items-center gap-3 px-3 py-2"
-                    >
-                      <Checkbox
-                        checked={false}
-                        onChange={() =>
-                          updateTodo.mutate({
-                            id: t.id,
-                            patch: { status: "done" },
-                          })
-                        }
-                        label={`Complete "${t.title}"`}
-                      />
-                      <Link
-                        to={`/todos?task=${t.id}`}
-                        className="min-w-0 flex-1 truncate text-sm hover:underline"
-                      >
-                        {t.title}
-                      </Link>
-                      <PriorityBadge priority={t.priority} />
-                      <span className="w-20 text-right">
-                        <DueDate date={t.dueDate} />
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-
+          <div className="mt-10 max-w-md">
             <div className="space-y-10">
               <section>
                 <SectionTitle icon={Star}>Favorites</SectionTitle>
@@ -375,7 +211,9 @@ export default function HomePage() {
                           to={f.to}
                           className="flex items-start gap-2.5 rounded-md px-2 py-1.5 hover:bg-hover"
                         >
-                          <span className="text-base leading-6">{f.icon}</span>
+                          <span className="flex size-5 shrink-0 items-center justify-center">
+                            <f.iconComponent name={f.icon} className="size-4" />
+                          </span>
                           <span className="min-w-0">
                             <span className="block truncate text-sm font-medium">
                               {f.title || "Untitled"}
@@ -390,7 +228,6 @@ export default function HomePage() {
                   </ul>
                 )}
               </section>
-              <NetworkCard />
             </div>
           </div>
         </div>

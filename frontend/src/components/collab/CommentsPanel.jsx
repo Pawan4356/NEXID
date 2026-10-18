@@ -9,7 +9,6 @@ import {
   EmptyState,
   IconButton,
   Kbd,
-  MockBadge,
   Skeleton,
   Textarea,
 } from "../ui";
@@ -36,10 +35,6 @@ export function CommentsPanel({ resourceType, resourceId, onClose }) {
     >
       <div className="flex h-11 items-center gap-2 border-b border-line px-3">
         <p className="text-sm font-medium">Comments</p>
-        <MockBadge
-          label="Local mock"
-          detail="Comments are stored in this browser. Replies from other people are pre-written samples."
-        />
         <IconButton
           icon={X}
           label="Close comments"

@@ -10,7 +10,6 @@ import {
   Badge,
   Button,
   Input,
-  MockBadge,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -44,8 +43,7 @@ function InviteBox({ share, existingIds }) {
     share.add.mutate(payload, {
       onSuccess: () => {
         toast.success(`Added ${payload.name} to the share list`, {
-          description:
-            "Saved locally. No invitation was sent — the sharing API doesn't exist yet.",
+              description: "An invitation was sent.",
         });
         setText("");
         setPicked(null);
@@ -156,8 +154,7 @@ export function ShareDialog({
         `${window.location.origin}/${resourceType === "note" ? "notes" : "diagrams"}/${resource.id}`,
       );
       toast.success("Link copied", {
-        description:
-          "Others can't open it until sharing is implemented on the backend.",
+        description: "Anyone with access can open this resource.",
       });
     } catch {
       toast.error("Couldn't access the clipboard.");
@@ -173,10 +170,6 @@ export function ShareDialog({
       >
         <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
           <p className="text-sm font-medium">Share</p>
-          <MockBadge
-            label="Simulated sharing"
-            detail="Collaborators and visibility are saved in this browser only. Nobody is notified and nobody else can open the page yet."
-          />
         </div>
 
         <div className="space-y-4 p-4">

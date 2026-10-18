@@ -1,39 +1,29 @@
 import { NavLink, useNavigate } from "react-router";
 import {
   ChevronsLeft,
-  ChevronsUpDown,
-  CheckSquare,
+  ChevronRight,
   Home,
-  LogOut,
   Moon,
-  Monitor,
   PenTool,
   Plus,
   Search,
   Settings,
   Sun,
-  User,
   Users,
 } from "lucide-react";
-import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { useShell } from "./AppShell";
 import { NoteTree } from "../notes/NoteTree";
+import { NoteIcon } from "../notes/noteIcons";
+import { Logo } from "../../pages/AuthPages";
 import { useCreateNote, useNotes } from "../../hooks/useNotes";
-import { useDiagrams } from "../../hooks/useDiagrams";
+import { useDiagramMutations, useDiagrams } from "../../hooks/useDiagrams";
+import { useLocalStorageState } from "../../hooks/useUtils";
 import {
   Avatar,
   IconButton,
   Kbd,
-  Menu,
-  MenuContent,
-  MenuItem,
-  MenuLabel,
-  MenuRadioGroup,
-  MenuSeparator,
-  MenuTrigger,
-  SubMenu,
   Tooltip,
 } from "../ui";
 import { cn, modKey } from "../../lib/utils";
@@ -73,74 +63,43 @@ export function SidebarSection({ title, action, children }) {
   );
 }
 
-function WorkspaceMenu() {
-  const { user, logout } = useAuth();
-  const { preference, setTheme } = useTheme();
-  const navigate = useNavigate();
-  const first = user?.name?.split(" ")[0] ?? "My";
-
-  const onLogout = async () => {
-    try {
-      await logout();
-      navigate("/login");
-    } catch (err) {
-      toast.error(`Couldn't log out: ${err.message}`);
-    }
-  };
-
+function DisclosureSection({ title, to, open, onToggle, action, children }) {
   return (
-    <Menu>
-      <MenuTrigger>
-        <button className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md px-1.5 text-left hover:bg-hover">
-          <Avatar user={user} size="sm" />
-          <span className="truncate text-sm font-medium">
-            {first}&rsquo;s Nexid
-          </span>
-          <ChevronsUpDown className="size-3.5 shrink-0 text-faint" />
-        </button>
-      </MenuTrigger>
-      <MenuContent className="w-64">
-        <div className="flex items-center gap-2.5 px-2 py-2">
-          <Avatar user={user} />
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{user?.name}</p>
-            <p className="truncate text-xs text-muted">{user?.email}</p>
-          </div>
-        </div>
-        <MenuSeparator />
-        <MenuItem icon={User} onSelect={() => navigate(`/people/${user.id}`)}>
-          Your profile
-        </MenuItem>
-        <MenuItem icon={Settings} onSelect={() => navigate("/settings")}>
-          Settings
-        </MenuItem>
-        <SubMenu
-          icon={
-            preference === "dark"
-              ? Moon
-              : preference === "light"
-                ? Sun
-                : Monitor
-          }
-          label="Theme"
+    <section className="mt-3">
+      <div className="flex h-8 items-center gap-1 px-1">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label={`${open ? "Collapse" : "Expand"} ${title}`}
+          aria-expanded={open}
+          className="flex size-6 shrink-0 items-center justify-center rounded text-faint hover:bg-hover hover:text-muted"
         >
-          <MenuRadioGroup
-            value={preference}
-            onValueChange={setTheme}
-            options={[
-              { value: "light", label: "Light", icon: Sun },
-              { value: "dark", label: "Dark", icon: Moon },
-              { value: "system", label: "System", icon: Monitor },
-            ]}
+          <ChevronRight
+            className={cn(
+              "size-3.5 shrink-0 transition-transform",
+              open && "rotate-90",
+            )}
           />
-        </SubMenu>
-        <MenuSeparator />
-        <MenuLabel>Signed in via the Nexid API</MenuLabel>
-        <MenuItem icon={LogOut} onSelect={onLogout}>
-          Log out
-        </MenuItem>
-      </MenuContent>
-    </Menu>
+        </button>
+        <NavLink
+          to={to}
+          className="min-w-0 flex-1 truncate rounded px-1 text-xs font-medium text-faint hover:bg-hover hover:text-muted"
+        >
+          {title}
+        </NavLink>
+        {action}
+      </div>
+      {open && children}
+    </section>
+  );
+}
+
+function WorkspaceHeader() {
+  return (
+    <div className="flex h-8 min-w-0 flex-1 items-center gap-2 px-1.5">
+      <Logo className="size-6 text-fg" />
+      <span className="truncate text-sm font-semibold">Nexid</span>
+    </div>
   );
 }
 
@@ -178,7 +137,7 @@ function Favorites() {
             {it.lucide ? (
               <it.lucide className="size-4" strokeWidth={1.7} />
             ) : (
-              it.icon
+              <NoteIcon name={it.icon} className="size-4" />
             )}
           </span>
           <span className="truncate">{it.title || "Untitled"}</span>
@@ -188,18 +147,57 @@ function Favorites() {
   );
 }
 
+function DiagramTree() {
+  const { data: diagrams = [] } = useDiagrams();
+  return (
+    <div className="space-y-px">
+      {diagrams.map((diagram) => (
+        <NavLink
+          key={diagram.id}
+          to={`/diagrams/${diagram.id}`}
+          className={({ isActive }) => navItemCls(isActive)}
+        >
+          <PenTool
+            className="size-4 shrink-0 text-fg"
+            strokeWidth={1.7}
+          />
+          <span className="truncate">
+            {diagram.title || "Untitled diagram"}
+          </span>
+        </NavLink>
+      ))}
+    </div>
+  );
+}
+
 export function Sidebar() {
   const { toggleSidebar, openSearch } = useShell();
+  const { user } = useAuth();
+  const { resolved, setTheme } = useTheme();
   const createNote = useCreateNote();
+  const createDiagram = useDiagramMutations().create;
   const navigate = useNavigate();
+  const [pagesOpen, setPagesOpen] = useLocalStorageState(
+    "nexid.sidebarPagesOpen",
+    false,
+  );
+  const [diagramsOpen, setDiagramsOpen] = useLocalStorageState(
+    "nexid.sidebarDiagramsOpen",
+    false,
+  );
 
   const newPage = () =>
     createNote.mutate({}, { onSuccess: (n) => navigate(`/notes/${n.id}`) });
+  const newDiagram = () =>
+    createDiagram.mutate({}, { onSuccess: (d) => navigate(`/diagrams/${d.id}`) });
+  const cycleTheme = () =>
+    setTheme(resolved === "dark" ? "light" : "dark");
+  const ThemeIcon = resolved === "dark" ? Moon : Sun;
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-1 px-2 pt-2">
-        <WorkspaceMenu />
+        <WorkspaceHeader />
         <Tooltip
           content={
             <>
@@ -224,12 +222,6 @@ export function Sidebar() {
         <NavItem to="/" icon={Home} end>
           Home
         </NavItem>
-        <NavItem to="/todos" icon={CheckSquare}>
-          Todos
-        </NavItem>
-        <NavItem to="/diagrams" icon={PenTool}>
-          Diagrams
-        </NavItem>
         <NavItem to="/people" icon={Users}>
           People
         </NavItem>
@@ -237,12 +229,11 @@ export function Sidebar() {
 
       <div className="mt-1 min-h-0 flex-1 overflow-y-auto px-2 pb-4">
         <Favorites />
-        <SidebarSection
-          title={
-            <NavLink to="/notes" className="hover:text-muted">
-              Pages
-            </NavLink>
-          }
+        <DisclosureSection
+          title="Pages"
+          to="/notes"
+          open={pagesOpen}
+          onToggle={() => setPagesOpen((open) => !open)}
           action={
             <IconButton
               icon={Plus}
@@ -253,21 +244,45 @@ export function Sidebar() {
           }
         >
           <NoteTree />
-        </SidebarSection>
+        </DisclosureSection>
+        <DisclosureSection
+          title="Diagrams"
+          to="/diagrams"
+          open={diagramsOpen}
+          onToggle={() => setDiagramsOpen((open) => !open)}
+          action={
+            <IconButton
+              icon={Plus}
+              size="sm"
+              label="New diagram"
+              onClick={newDiagram}
+            />
+          }
+        >
+          <DiagramTree />
+        </DisclosureSection>
       </div>
 
-      <div className="space-y-px border-t border-line px-2 py-2">
-        <NavItem to="/settings" icon={Settings}>
-          Settings
-        </NavItem>
-        <button
-          onClick={newPage}
-          disabled={createNote.isPending}
-          className={navItemCls(false)}
+      <div className="flex items-center gap-1 border-t border-line px-2 py-2">
+        <NavLink
+          to={user ? `/people/${user.id}` : "/people"}
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-1.5 py-1.5 text-left hover:bg-hover"
         >
-          <Plus className="size-4.5 shrink-0" strokeWidth={1.7} />
-          New page
-        </button>
+          <Avatar user={user} size="sm" />
+          <span className="truncate text-sm font-medium">
+            {user?.name || "Profile"}
+          </span>
+        </NavLink>
+        <IconButton
+          icon={ThemeIcon}
+          label="Change theme"
+          onClick={cycleTheme}
+        />
+        <IconButton
+          icon={Settings}
+          label="Settings"
+          onClick={() => navigate("/settings")}
+        />
       </div>
     </div>
   );

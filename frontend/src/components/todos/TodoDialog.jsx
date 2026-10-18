@@ -4,6 +4,7 @@ import { Button, Field, Input, Modal, Select, Textarea } from "../ui";
 import { useNotes } from "../../hooks/useNotes";
 import { useTodoMutations } from "../../hooks/useTodos";
 import { PRIORITY, STATUS } from "./meta";
+import { NoteIcon } from "../notes/noteIcons";
 
 const EMPTY = {
   title: "",
@@ -50,6 +51,7 @@ export function TodoDialog({ open, onOpenChange, todo, defaults }) {
       dueDate: form.dueDate || null,
       noteId: form.noteId || null,
     };
+    if (!todo && !payload.noteId) return setError("Choose the note that owns this checklist item.");
     try {
       if (todo) await update.mutateAsync({ id: todo.id, patch: payload });
       else await create.mutateAsync(payload);
@@ -131,7 +133,8 @@ export function TodoDialog({ open, onOpenChange, todo, defaults }) {
                 <option value="">None</option>
                 {notes.map((n) => (
                   <option key={n.id} value={n.id}>
-                    {n.icon} {n.title || "Untitled"}
+                    <NoteIcon name={n.icon} className="mr-1 inline size-3.5" />
+                    {n.title || "Untitled"}
                   </option>
                 ))}
               </Select>

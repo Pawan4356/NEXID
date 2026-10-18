@@ -15,7 +15,6 @@ import { LoginPage, SignupPage, Logo } from "./pages/AuthPages";
 import HomePage from "./pages/HomePage";
 import NotesPage from "./pages/NotesPage";
 import NotePage from "./pages/NotePage";
-import TodosPage from "./pages/TodosPage";
 import DiagramsPage from "./pages/DiagramsPage";
 import PeoplePage from "./pages/PeoplePage";
 import ProfilePage from "./pages/ProfilePage";
@@ -132,7 +131,6 @@ export default function App() {
           <Route index element={<HomePage />} />
           <Route path="notes" element={<NotesPage />} />
           <Route path="notes/:noteId" element={<NotePage />} />
-          <Route path="todos" element={<TodosPage />} />
           <Route path="diagrams" element={<DiagramsPage />} />
           <Route
             path="diagrams/:diagramId"

@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router";
 import {
   Copy,
   MoreHorizontal,
-  PenTool,
   Star,
   StarOff,
   Trash2,
@@ -20,15 +19,16 @@ import {
 import { useDiagramMutations } from "../../hooks/useDiagrams";
 import { VISIBILITY } from "../sharing/visibility";
 import { timeAgo } from "../../lib/utils";
+import { DiagramPreview } from "./DiagramPreview";
 
-/** Simple grid-paper thumbnail; real previews would need a stored export. */
-function Thumb({ count }) {
+function Thumb({ elements, files }) {
   return (
-    <div className="relative flex h-32 items-center justify-center overflow-hidden rounded-t-lg border-b border-line bg-subtle bg-[radial-gradient(var(--border-strong)_1px,transparent_1px)] bg-size-[14px_14px]">
-      <PenTool className="size-7 text-faint" strokeWidth={1.4} />
-      <span className="absolute right-2 bottom-2 text-[11px] text-faint">
-        {count} elements
-      </span>
+    <div className="relative overflow-hidden rounded-t-lg border-b border-line">
+      {elements?.length ? (
+        <DiagramPreview elements={elements} files={files} />
+      ) : (
+        <div className="h-32 bg-white" />
+      )}
     </div>
   );
 }
@@ -41,7 +41,7 @@ export function DiagramCard({ diagram }) {
   return (
     <div className="group relative rounded-lg border border-line bg-bg transition-shadow hover:shadow-[0_2px_8px_rgba(15,15,15,0.08)]">
       <Link to={`/diagrams/${diagram.id}`} className="block">
-        <Thumb count={diagram.elementCount} />
+        <Thumb elements={diagram.previewElements} files={diagram.previewFiles} />
         <div className="p-3">
           <p className="truncate text-sm font-medium">
             {diagram.title || "Untitled diagram"}
