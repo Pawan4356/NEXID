@@ -188,9 +188,9 @@ Visibility changes go through the resource's own `PATCH`.
 
 | Method | Path | Why |
 | --- | --- | --- |
-| GET | `/follow/:userId/followers`, `/follow/:userId/following` | Profile tabs for other users currently show "not available" |
+| GET | `/follow/:userId/followers`, `/follow/:userId/following` | Profile tabs for other users |
 | GET | `/user/:userId` → add `followersCount`, `followingCount`, `isFollowing`, `followsYou` | Avoids downloading full lists just to render one button |
-| GET | `/users/:userId/notes?visibility=public` | "Public pages" on other people's profiles |
+| GET | `/user/:userId/notes?visibility=public` | "Public pages" on other people's profiles |
 | GET | `/user/users?name=&limit=&cursor=` | Pagination (currently returns every user when `name` is empty) |
 
 ---

@@ -216,8 +216,8 @@ only appears on pages that are shared.
 
 ### UI states that need missing endpoints
 
-- Another user's followers/following tabs show an explanatory empty state (no per-user endpoint exists).
-- Another user's public pages show what API is needed.
+- Other users' followers/following tabs load from the per-user follow endpoints.
+- Other users' public pages load from the public notes endpoint; private and protected pages remain hidden.
 
 ---
 
