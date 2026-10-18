@@ -7,10 +7,12 @@ const find = (d, id) => {
   return x;
 };
 
-// List responses omit the (potentially large) scene.
+// List responses keep lightweight scene data so cards can render previews.
 const summary = ({ scene, skeleton, ...rest }) => ({
   ...rest,
   elementCount: scene?.elements?.length ?? skeleton?.length ?? 0,
+  previewElements: scene?.elements ?? skeleton ?? [],
+  previewFiles: scene?.files ?? {},
 });
 
 export const list = () => mockCall((d) => d.diagrams.map(summary));

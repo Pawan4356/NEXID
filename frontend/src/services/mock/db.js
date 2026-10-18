@@ -1,5 +1,5 @@
 // Local mock persistence for features the backend does not implement yet
-// (notes, todos, diagrams, sharing, comments). Data lives in localStorage,
+// (notes, diagrams, sharing, comments). Data lives in localStorage,
 // namespaced by the real logged-in user's id, so it survives reloads and
 // different accounts get separate sandboxes.
 //
@@ -7,7 +7,7 @@
 
 import { createSeed } from "./seed";
 
-const VERSION = 1;
+const VERSION = 2;
 const LATENCY = Number(import.meta.env.VITE_MOCK_LATENCY_MS ?? 150);
 
 let currentUser = null;

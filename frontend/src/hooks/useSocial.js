@@ -24,6 +24,18 @@ export const useMyFollowers = () =>
   useQuery({ queryKey: qk.myFollowers, queryFn: followApi.getMyFollowers });
 export const useMyFollowing = () =>
   useQuery({ queryKey: qk.myFollowing, queryFn: followApi.getMyFollowing });
+export const useFollowers = (userId) =>
+  useQuery({
+    queryKey: qk.followers(userId),
+    queryFn: () => followApi.getFollowers(userId),
+    enabled: !!userId,
+  });
+export const useFollowing = (userId) =>
+  useQuery({
+    queryKey: qk.following(userId),
+    queryFn: () => followApi.getFollowing(userId),
+    enabled: !!userId,
+  });
 
 /** Follow state for one user derived from GET /follow/following, plus a toggle. */
 export function useFollow(user) {
@@ -35,6 +47,13 @@ export function useFollow(user) {
     mutationFn: (next) =>
       next ? followApi.follow(user.id) : followApi.unfollow(user.id),
     onSuccess: (_res, next) => {
+      queryClient.setQueryData(qk.myFollowing, (current = []) =>
+        next
+          ? current.some((item) => item.id === user.id)
+            ? current
+            : [...current, user]
+          : current.filter((item) => item.id !== user.id),
+      );
       toast.success(
         next ? `You're now following ${user.name}` : `Unfollowed ${user.name}`,
       );
@@ -43,17 +62,15 @@ export function useFollow(user) {
       toast.error(
         `Couldn't ${next ? "follow" : "unfollow"} ${user.name}: ${err.message}`,
       ),
-    // Always re-read the truth from the server rather than guessing.
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: qk.myFollowing });
-      queryClient.invalidateQueries({ queryKey: qk.myFollowers });
+      queryClient.invalidateQueries({ queryKey: qk.followers(user.id) });
     },
   });
 
   return {
     isFollowing,
     isKnown: following.isSuccess,
-    isPending: mutation.isPending || following.isFetching,
+    isPending: mutation.isPending,
     toggle: () => mutation.mutate(!isFollowing),
   };
 }

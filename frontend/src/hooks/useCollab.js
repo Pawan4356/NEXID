@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { commentsMock, presenceFor, sharingMock } from "../services/mock";
+import { commentsApi, sharingApi } from "../services/api";
+import { presenceFor } from "../services/mock";
 import { qk } from "../lib/queryKeys";
 
 export function useShare(type, id) {
@@ -10,7 +11,7 @@ export function useShare(type, id) {
   const key = qk.share(type, id);
   const query = useQuery({
     queryKey: key,
-    queryFn: () => sharingMock.get(type, id),
+    queryFn: () => sharingApi.get(type, id),
     enabled: !!id,
   });
   const set = (data) => qc.setQueryData(key, data);
@@ -18,18 +19,17 @@ export function useShare(type, id) {
   return {
     ...query,
     add: useMutation({
-      mutationFn: (c) => sharingMock.addCollaborator(type, id, c),
+      mutationFn: (collaborator) => sharingApi.add(type, id, collaborator),
       onSuccess: set,
       onError: fail,
     }),
     setRole: useMutation({
-      mutationFn: ({ cid, role }) =>
-        sharingMock.updateRole(type, id, cid, role),
+      mutationFn: ({ cid, role }) => sharingApi.updateRole(type, cid, role).then(() => sharingApi.get(type, id)),
       onSuccess: set,
       onError: fail,
     }),
     remove: useMutation({
-      mutationFn: (cid) => sharingMock.removeCollaborator(type, id, cid),
+      mutationFn: (cid) => sharingApi.remove(type, cid).then(() => sharingApi.get(type, id)),
       onSuccess: set,
       onError: fail,
     }),
@@ -41,7 +41,7 @@ export function useComments(type, id) {
   const key = qk.comments(type, id);
   const query = useQuery({
     queryKey: key,
-    queryFn: () => commentsMock.list(type, id),
+    queryFn: () => commentsApi.list(type, id),
     enabled: !!id,
   });
   const refresh = () => qc.invalidateQueries({ queryKey: key });
@@ -49,18 +49,17 @@ export function useComments(type, id) {
   return {
     ...query,
     add: useMutation({
-      mutationFn: (body) => commentsMock.add(type, id, body),
+      mutationFn: (body) => commentsApi.add(type, id, body),
       onSuccess: refresh,
       onError: fail,
     }),
     resolve: useMutation({
-      mutationFn: ({ cid, resolved }) =>
-        commentsMock.setResolved(cid, resolved),
+      mutationFn: ({ cid, resolved }) => commentsApi.setResolved(cid, resolved),
       onSuccess: refresh,
       onError: fail,
     }),
     remove: useMutation({
-      mutationFn: commentsMock.remove,
+      mutationFn: commentsApi.remove,
       onSuccess: refresh,
       onError: fail,
     }),

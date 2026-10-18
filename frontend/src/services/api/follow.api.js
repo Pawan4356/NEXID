@@ -29,4 +29,16 @@ export const getMyFollowers = async () =>
 export const getMyFollowing = async () =>
   normalizeUsers(await request("/follow/following", { auth: true }));
 
-// Note: the backend has no endpoint for another user's followers/following.
+export const getFollowers = async (userId) =>
+  normalizeUsers(
+    await request(`/follow/${encodeURIComponent(userId)}/followers`, {
+      auth: true,
+    }),
+  );
+
+export const getFollowing = async (userId) =>
+  normalizeUsers(
+    await request(`/follow/${encodeURIComponent(userId)}/following`, {
+      auth: true,
+    }),
+  );

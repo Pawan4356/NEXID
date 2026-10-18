@@ -9,10 +9,13 @@ const find = (d, id) => {
 
 const descendantsOf = (d, id) => {
   const out = [];
+  const visited = new Set();
   const walk = (pid) =>
     d.notes
       .filter((n) => n.parentId === pid)
       .forEach((n) => {
+        if (visited.has(n.id)) return;
+        visited.add(n.id);
         out.push(n);
         walk(n.id);
       });
@@ -27,7 +30,7 @@ export const get = (id) => mockCall((d) => find(d, id));
 export const create = ({
   parentId = null,
   title = "",
-  icon = "📄",
+  icon = "file-text",
   content,
 } = {}) =>
   mockCall((d) => {
@@ -120,13 +123,11 @@ export const remove = (id) =>
     find(d, id);
     const ids = new Set([id, ...descendantsOf(d, id).map((n) => n.id)]);
     d.notes = d.notes.filter((n) => !ids.has(n.id));
-    d.comments = d.comments.filter(
+    d.comments = (d.comments ?? []).filter(
       (c) => !(c.resourceType === "note" && ids.has(c.resourceId)),
     );
+    d.shares ??= {};
     ids.forEach((nid) => delete d.shares[`note:${nid}`]);
-    d.todos.forEach((t) => {
-      if (ids.has(t.noteId)) t.noteId = null;
-    });
     persist();
     return [...ids];
   });

@@ -4,10 +4,12 @@ export const qk = {
   userSearch: (q) => ["users", "search", q],
   myFollowers: ["follow", "followers"],
   myFollowing: ["follow", "following"],
+  followers: (id) => ["follow", id, "followers"],
+  following: (id) => ["follow", id, "following"],
+  publicNotes: (id) => ["public-notes", id],
   // mock
   notes: ["mock", "notes"],
   note: (id) => ["mock", "note", id],
-  todos: ["mock", "todos"],
   diagrams: ["mock", "diagrams"],
   diagram: (id) => ["mock", "diagram", id],
   share: (type, id) => ["mock", "share", type, id],
