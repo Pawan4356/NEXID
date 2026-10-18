@@ -36,7 +36,7 @@ const canvasSchema = mongoose.Schema(
     },
   },
   {
-    timestamp: true,
+    timestamps: true,
   },
 );
 

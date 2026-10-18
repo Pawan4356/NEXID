@@ -2,6 +2,7 @@ const {
   validateSignUpData,
   validateEmail,
   validateOldPassword,
+  validateParent,
 } = require("./validation.util");
 const { encryptPassword } = require("./encryption.util");
 
@@ -10,4 +11,5 @@ module.exports = {
   validateEmail,
   validateOldPassword,
   encryptPassword,
+  validateParent,
 };

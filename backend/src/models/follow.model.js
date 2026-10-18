@@ -21,13 +21,17 @@ const followSchema = new mongoose.Schema(
 
 // Mongoose middleware hook, Mongoose runs this function before it validates the document.
 followSchema.pre("validate", function () {
-  if (this.followerId.equals(this.followingId)) {
-    throw new Error("A user cannot follow themselves");
+  if (
+    this.followerId &&
+    this.followingId &&
+    this.followerId.equals(this.followingId)
+  ) {
+    this.invalidate("A user cannot follow themselves");
   }
 });
 
 // This creates a compound index on: followerId + followingId
-// Prevent duplicate follow pairs 
+// Prevent duplicate follow pairs
 // And support queries by followerId
 followSchema.index({ followerId: 1, followingId: 1 }, { unique: true });
 // Support queries by followingId

@@ -23,8 +23,36 @@ const validateOldPassword = async (oldPassword, oldPasswordHash) => {
   return await bcrypt.compare(oldPassword, oldPasswordHash);
 };
 
+async function validateParent(noteId, parentId, userId) {
+  if (!parentId) return true;
+  const visited = new Set();
+  let currentId = parentId;
+  while (currentId) {
+    const currentKey = currentId.toString();
+    // The proposed parent is the note itself,
+    // or one of its descendants.
+    if (currentKey === noteId.toString()) {
+      return false;
+    }
+    // Avoid infinite loops if existing data is corrupted.
+    if (visited.has(currentKey)) {
+      return false;
+    }
+    visited.add(currentKey);
+    const currentNote = await Note.findOne({
+      _id: currentId,
+      userId,
+    }).select("parentId");
+    // Parent doesn't exist or isn't owned by this user.
+    if (!currentNote) return false;
+    currentId = currentNote.parentId;
+  }
+  return true;
+}
+
 module.exports = {
   validateSignUpData,
   validateEmail,
   validateOldPassword,
+  validateParent,
 };
