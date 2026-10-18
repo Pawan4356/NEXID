@@ -12,9 +12,9 @@ noteRouter.use(userAuth);
 
 noteRouter.post("/", async (req, res) => {
   try {
-    const { parentId = null, title, content, visibility } = req.body;
+    const { parentId = null, title = "Untitled", content, visibility, icon, isFavorite, settings } = req.body;
     if (
-      !title ||
+      !title.trim() ||
       (parentId &&
         !(
           isId(parentId) && (await validateParent(null, parentId, req.user._id))
@@ -30,6 +30,9 @@ noteRouter.post("/", async (req, res) => {
       title,
       content,
       visibility,
+      icon,
+      isFavorite,
+      settings,
     });
     return res.status(201).json({ note });
   } catch (err) {
@@ -97,7 +100,7 @@ noteRouter.patch("/:noteId", async (req, res) => {
     return res.status(400).json({ message: "Invalid note ID." });
   const note = await Note.findOne(ownerQuery(noteId, req.user._id));
   if (!note) return res.status(404).json({ message: "Note not found." });
-  const allowed = ["parentId", "title", "content", "visibility"];
+  const allowed = ["parentId", "title", "content", "visibility", "icon", "isFavorite", "settings", "lastViewedAt"];
   const updates = req.body || {};
   if (
     !Object.keys(updates).length ||

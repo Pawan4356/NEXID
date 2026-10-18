@@ -21,7 +21,7 @@ const canvasSchema = mongoose.Schema(
     visibility: {
       type: String,
       lowercase: true,
-      enum: ["public", "protected", "private"],
+      enum: ["public", "protected", "friends", "private"],
       default: "private",
       required: true,
     },
@@ -34,6 +34,9 @@ const canvasSchema = mongoose.Schema(
       y: { type: Number, default: 0 },
       zoom: { type: Number, default: 1 },
     },
+    scene: { type: mongoose.Schema.Types.Mixed, default: () => ({ elements: [], appState: {}, files: {} }) },
+    isFavorite: { type: Boolean, default: false },
+    lastViewedAt: { type: Date, default: null },
   },
   {
     timestamps: true,

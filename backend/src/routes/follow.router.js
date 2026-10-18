@@ -106,4 +106,37 @@ followRouter.get("/following", userAuth, async (req, res) => {
   }
 });
 
+async function getUsersForFollowList(req, res, relationshipField) {
+  try {
+    const userId = req.params.userId;
+    if (!mongoose.isValidObjectId(userId)) {
+      return res.status(400).send("Invalid user ID");
+    }
+    if (!(await User.exists({ _id: userId }))) {
+      return res.status(404).send("User not found");
+    }
+
+    const follows = await Follow.find({ [relationshipField]: userId });
+    const userIds = follows.map((follow) =>
+      relationshipField === "followingId" ? follow.followerId : follow.followingId,
+    );
+    const users = await User.find({ _id: { $in: userIds } }).select("-password");
+    return res.send(users);
+  } catch (err) {
+    return res.status(500).send("Error: " + err.message);
+  }
+}
+
+followRouter.get(
+  "/:userId/followers",
+  userAuth,
+  (req, res) => getUsersForFollowList(req, res, "followingId"),
+);
+
+followRouter.get(
+  "/:userId/following",
+  userAuth,
+  (req, res) => getUsersForFollowList(req, res, "followerId"),
+);
+
 module.exports = followRouter;

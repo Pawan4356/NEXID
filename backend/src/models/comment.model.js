@@ -9,8 +9,13 @@ const commentSchema = mongoose.Schema(
     },
     noteId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      default: null,
       ref: "Note",
+    },
+    canvasId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+      ref: "Canvas",
     },
     content: {
       type: String,
@@ -19,6 +24,7 @@ const commentSchema = mongoose.Schema(
       required: true,
       trim: true,
     },
+    resolved: { type: Boolean, default: false },
     parentId: {
       type: mongoose.Schema.Types.ObjectId,
       default: null,

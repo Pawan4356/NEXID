@@ -16,7 +16,12 @@ const invitationSchema = new mongoose.Schema(
     },
     resourceId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Note",
+      required: true,
+    },
+    resourceType: {
+      type: String,
+      enum: ["note", "diagram"],
+      default: "note",
       required: true,
     },
     role: {

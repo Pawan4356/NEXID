@@ -7,6 +7,8 @@ userRouter.use(express.json());
 userRouter.use(cookieParser());
 
 const User = require("../models/user.model");
+const Note = require("../models/note.model");
+const mongoose = require("mongoose");
 const { encryptPassword, validateOldPassword } = require("../utils");
 const userAuth = require("../middleware/auth.middleware");
 
@@ -99,6 +101,24 @@ userRouter.get("/users", async (req, res) => {
   } catch (err) {
     console.log("> Error:", err.message);
     res.status(500).send("Something went wrong...");
+  }
+});
+
+userRouter.get("/:userId/notes", async (req, res) => {
+  const { userId } = req.params;
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).send("Invalid user ID");
+  }
+  if (req.query.visibility !== "public") {
+    return res.status(400).send("Only public notes can be requested");
+  }
+  try {
+    const notes = await Note.find({ userId, visibility: "public" })
+      .select("_id title visibility createdAt updatedAt")
+      .sort({ updatedAt: -1 });
+    return res.status(200).send({ notes });
+  } catch (err) {
+    return res.status(500).send("Something went wrong...");
   }
 });
 
