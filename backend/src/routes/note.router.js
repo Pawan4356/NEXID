@@ -1,126 +1,128 @@
 const express = require("express");
-const cookieParser = require("cookie-parser");
-
-const noteRouter = express.Router();
-noteRouter.use(express.json());
-noteRouter.use(cookieParser());
-
+const mongoose = require("mongoose");
 const Note = require("../models/note.model");
 const userAuth = require("../middleware/auth.middleware");
+const { validateParent } = require("../utils");
 
-const validateParent = require("../utils");
+const noteRouter = express.Router();
+const isId = (value) => mongoose.isValidObjectId(value);
+const ownerQuery = (noteId, userId) => ({ _id: noteId, userId });
 
-noteRouter.post("/", userAuth, async (req, res) => {
+noteRouter.use(userAuth);
+
+noteRouter.post("/", async (req, res) => {
   try {
-    const { parentId, title, content } = req.body;
-    const userId = req.user._id;
-    if (parentId) {
-      const parentNote = await Note.findOne({
-        _id: parentId,
-        userId,
-      });
-      if (!parentNote) {
-        return res.status(400).json({
-          message: "Invalid parent note.",
-        });
-      }
+    const { parentId = null, title, content, visibility } = req.body;
+    if (
+      !title ||
+      (parentId &&
+        !(
+          isId(parentId) && (await validateParent(null, parentId, req.user._id))
+        ))
+    ) {
+      return res
+        .status(400)
+        .json({ message: "A valid title and parent are required." });
     }
-    const note = new Note({
-      userId,
-      parentId: parentId || null,
+    const note = await Note.create({
+      userId: req.user._id,
+      parentId,
       title,
       content,
+      visibility,
     });
-    await note.save();
-    res.status(201).send("Note created...");
+    return res.status(201).json({ note });
   } catch (err) {
-    res.status(400).send("Error: " + err);
+    return res
+      .status(err.name === "ValidationError" ? 400 : 500)
+      .json({ message: err.message });
   }
 });
 
-noteRouter.get("/", userAuth, async (req, res) => {
+noteRouter.get("/", async (req, res) => {
   try {
-    const userId = req.user._id;
-    const notes = await Note.find({ userId: userId });
-    if (!notes || Object.keys(notes).length === 0) {
-      res.status(404).send("Notes not found!");
+    const filter = { userId: req.user._id };
+    if (req.query.parentId !== undefined) {
+      if (req.query.parentId !== "null" && !isId(req.query.parentId))
+        return res.status(400).json({ message: "Invalid parent ID." });
+      filter.parentId =
+        req.query.parentId === "null" ? null : req.query.parentId;
     }
-    res.status(200).send({
-      message: "Notes retrieved successfully!",
-      notes,
-    });
+    if (req.query.search) {
+      const escaped = req.query.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      filter.$or = [
+        { title: { $regex: escaped, $options: "i" } },
+        { content: { $regex: escaped, $options: "i" } },
+      ];
+    }
+    const notes = await Note.find(filter).sort({ updatedAt: -1 });
+    return res.status(200).json({ notes });
   } catch (err) {
-    res.status(400).send("Error: " + err);
+    return res.status(500).json({ message: err.message });
   }
 });
 
-noteRouter.get("/:noteId", userAuth, async (req, res) => {
-  try {
-    const { noteId } = req.params;
-    if (!noteId) {
-      res.status(400).send("Noted ID not provided!");
-    }
-    const note = await Note.findById(noteId);
-    if (!note) {
-      res.status(404).send("Note not found!");
-    }
-    const userId = req.user._id;
-    const isOwner = note.userId.equals(userId);
-    if (!isOwner && note.visibility === "private") {
-      res.status(401).send("Not authorized!");
-    }
-    res.status(200).send({
-      message: "Note retrieved successfully!",
-      note,
-    });
-  } catch (err) {
-    res.status(400).send("Error: " + err);
+noteRouter.get("/:noteId/tree", async (req, res) => {
+  if (!isId(req.params.noteId))
+    return res.status(400).json({ message: "Invalid note ID." });
+  const root = await Note.findOne(ownerQuery(req.params.noteId, req.user._id));
+  if (!root) return res.status(404).json({ message: "Note not found." });
+  const notes = await Note.find({ userId: req.user._id });
+  const byParent = new Map();
+  for (const note of notes) {
+    const key = note.parentId ? note.parentId.toString() : "null";
+    if (!byParent.has(key)) byParent.set(key, []);
+    byParent.get(key).push(note);
   }
+  const addChildren = (note) => ({
+    ...note.toObject(),
+    children: (byParent.get(note._id.toString()) || []).map(addChildren),
+  });
+  return res.json({ note: addChildren(root) });
 });
 
-noteRouter.patch("/:noteId", userAuth, async (req, res) => {
+noteRouter.get("/:noteId", async (req, res) => {
+  if (!isId(req.params.noteId))
+    return res.status(400).json({ message: "Invalid note ID." });
+  const note = await Note.findById(req.params.noteId);
+  if (!note) return res.status(404).json({ message: "Note not found." });
+  if (note.visibility === "private" && !note.userId.equals(req.user._id))
+    return res.status(403).json({ message: "Not authorized." });
+  return res.json({ note });
+});
+
+noteRouter.patch("/:noteId", async (req, res) => {
+  const { noteId } = req.params;
+  if (!isId(noteId))
+    return res.status(400).json({ message: "Invalid note ID." });
+  const note = await Note.findOne(ownerQuery(noteId, req.user._id));
+  if (!note) return res.status(404).json({ message: "Note not found." });
+  const allowed = ["parentId", "title", "content", "visibility"];
+  const updates = req.body || {};
+  if (
+    !Object.keys(updates).length ||
+    Object.keys(updates).some((key) => !allowed.includes(key))
+  )
+    return res.status(400).json({ message: "Invalid note fields." });
+  if (
+    Object.hasOwn(updates, "parentId") &&
+    updates.parentId !== null &&
+    (!isId(updates.parentId) ||
+      !(await validateParent(noteId, updates.parentId, req.user._id)))
+  ) {
+    return res
+      .status(400)
+      .json({ message: "Invalid parent or circular nesting detected." });
+  }
   try {
-    const noteId = req.params.noteId;
-    if (!noteId) {
-      res.status(400).send("Noted ID not provided!");
-    }
-    const note = await Note.findById(noteId);
-    if (!note) {
-      res.status(404).send("Note not found!");
-    }
-    const userId = req.user._id;
-    const isOwner = note.userId.equals(userId);
-    if (!isOwner) {
-      res.status(401).send("Un Authorized...");
-    }
-    const newData = req.body;
-    if (!newData || Object.keys(newData).length === 0) {
-      res.status(400).send("Bad Request...");
-    }
-    if (Object.hasOwn(newData, "parentId")) {
-      const isValid = await validateParent(noteId, newData.parentId, userId);
-      if (!isValid) {
-        return res.status(400).json({
-          message: "Invalid parent or circular nesting detected.",
-        });
-      }
-    }
-    const ALLOWED_UPDATES = ["parentId", "title", "content", "visibility"];
-    const isUpdateAllowed = Object.keys(newData).every((k) => {
-      return ALLOWED_UPDATES.includes(k);
-    });
-    if (!isUpdateAllowed) {
-      throw new Error("Update not allowed");
-    }
-    const updatedNote = await Note.findByIdAndUpdate(noteId, newData, {
-      returnDocument: "after",
-    });
-    res.status(200).send({
-      message: "Updated successfully!",
-      updatedNote,
-    });
+    const updatedNote = await Note.findOneAndUpdate(
+      ownerQuery(noteId, req.user._id),
+      updates,
+      { new: true, runValidators: true },
+    );
+    return res.json({ note: updatedNote });
   } catch (err) {
-    res.status(400).send("Error: " + err);
+    return res.status(400).json({ message: err.message });
   }
 });
 
@@ -182,3 +184,5 @@ noteRouter.delete("/:noteId", userAuth, async (req, res) => {
     });
   }
 });
+
+module.exports = noteRouter;

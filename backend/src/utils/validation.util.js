@@ -1,5 +1,6 @@
 const validator = require("validator");
 const bcrypt = require("bcrypt");
+const Note = require("../models/note.model");
 
 const validateEmail = (email) => {
   if (!validator.isEmail(email)) {
@@ -31,7 +32,7 @@ async function validateParent(noteId, parentId, userId) {
     const currentKey = currentId.toString();
     // The proposed parent is the note itself,
     // or one of its descendants.
-    if (currentKey === noteId.toString()) {
+    if (noteId && currentKey === noteId.toString()) {
       return false;
     }
     // Avoid infinite loops if existing data is corrupted.

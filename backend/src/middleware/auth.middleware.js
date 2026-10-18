@@ -8,15 +8,15 @@ const userAuth = async (req, res, next) => {
     if (!token) {
       throw new Error("Invalid token");
     }
-    const _id = jwt.verify(token, ENV.JWT_SECRET_KEY);
+    const { _id } = jwt.verify(token, ENV.JWT_SECRET_KEY);
     const user = await User.findById(_id);
     if (!user) {
       throw new Error("User not found...");
     }
     req.user = user;
-    next();
+    return next();
   } catch (err) {
-    res.status(400).send("Error: " + err.message);
+    return res.status(401).json({ message: "Authentication required." });
   }
 };
 

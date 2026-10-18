@@ -14,7 +14,14 @@ userRouter.get("/me", userAuth, async (req, res) => {
   try {
     const user = req.user;
     console.log(user);
-    res.status(200).send(user);
+    return res.status(200).send(
+      user.toObject({
+        transform: (_, value) => {
+          delete value.password;
+          return value;
+        },
+      }),
+    );
   } catch (err) {
     res.status(500).send("Something went wrong...");
   }
@@ -98,12 +105,12 @@ userRouter.get("/users", async (req, res) => {
 userRouter.get("/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("-password");
     if (!user) {
       return res.status(404).send("User not found!");
     }
     console.log(user);
-    res.status(200).send(user);
+    return res.status(200).send(user);
   } catch (err) {
     console.log("> Error: " + err.message);
     // Mongoose throws a specific CastError if the string length/format of the ID is invalid

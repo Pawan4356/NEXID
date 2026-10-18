@@ -20,7 +20,7 @@ authRouter.post("/signup", async (req, res) => {
     validateSignUpData(req);
     const password = req.body.password;
     if (!password) {
-      res.status(400).send("Bad request!");
+      return res.status(400).send("Bad request!");
     }
     const encPassword = await encryptPassword(password);
     const { name, avatar, email, age, gender, bio } = req.body;
@@ -40,7 +40,7 @@ authRouter.post("/signup", async (req, res) => {
       expires: new Date(Date.now() + 3 * 3600000),
     });
     console.log("> User added successfully...");
-    res.status(201).send("User added successfully...");
+    return res.status(201).send("User added successfully...");
   } catch (err) {
     console.log("> Error: " + err.message);
     res.status(400).send("Something Went wrong: " + err.message);

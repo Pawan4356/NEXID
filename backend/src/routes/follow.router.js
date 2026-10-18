@@ -8,9 +8,14 @@ followRouter.use(cookieParser());
 const userAuth = require("../middleware/auth.middleware");
 const User = require("../models/user.model");
 const Follow = require("../models/follow.model");
+const mongoose = require("mongoose");
+const { createNotification } = require("../utils/notification.util");
 
 followRouter.post("/:userId", userAuth, async (req, res) => {
   try {
+    if (!mongoose.isValidObjectId(req.params.userId)) {
+      return res.status(400).send("Invalid user ID");
+    }
     const following = await User.findById(req.params.userId);
     if (!following) {
       return res.status(404).send("User not found");
@@ -20,7 +25,12 @@ followRouter.post("/:userId", userAuth, async (req, res) => {
       followingId: following._id,
     });
     const result = await followRequest.save();
-    res.status(201).send(result);
+    await createNotification({
+      userId: following._id,
+      actorId: req.user._id,
+      type: "follow",
+    });
+    return res.status(201).send(result);
   } catch (err) {
     if (err.code === 11000) {
       return res.status(409).send("Already following this user");
@@ -31,6 +41,9 @@ followRouter.post("/:userId", userAuth, async (req, res) => {
 
 followRouter.delete("/:userId", userAuth, async (req, res) => {
   try {
+    if (!mongoose.isValidObjectId(req.params.userId)) {
+      return res.status(400).send("Invalid user ID");
+    }
     const followerId = req.user._id;
     const followingId = req.params.userId;
     if (!followerId || !followingId) {
@@ -41,7 +54,7 @@ followRouter.delete("/:userId", userAuth, async (req, res) => {
       followingId: followingId,
     };
     await Follow.findOneAndDelete(filter);
-    res.status(200).send({
+    return res.status(200).send({
       message: "Unfollowed succesfully",
       follower: await User.findById(followerId),
       following: await User.findById(followingId),
@@ -67,8 +80,8 @@ followRouter.get("/followers", userAuth, async (req, res) => {
     }).select("-password");
     console.log(followers);
     res.send(followers);
-  } catch (error) {
-    res.status(404).send("Error: " + err.message);
+  } catch (err) {
+    return res.status(500).send("Error: " + err.message);
   }
 });
 
@@ -88,8 +101,8 @@ followRouter.get("/following", userAuth, async (req, res) => {
     }).select("-password");
     console.log(following);
     res.send(following);
-  } catch (error) {
-    res.status(404).send("Error: " + err.message);
+  } catch (err) {
+    return res.status(500).send("Error: " + err.message);
   }
 });
 
