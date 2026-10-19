@@ -1,33 +1,62 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nexid</title>
-    <meta name="description" content="Notes, tasks, diagrams, and collaboration in one workspace." />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Nexid" />
-    <meta property="og:description" content="Notes, tasks, diagrams, and collaboration in one workspace." />
-    <meta property="og:image" content="/Nexid-OG.png" />
-    <meta property="og:image:alt" content="Nexid notes, tasks, and collaboration workspace" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Nexid" />
-    <meta name="twitter:description" content="Notes, tasks, diagrams, and collaboration in one workspace." />
-    <meta name="twitter:image" content="/Nexid-OG.png" />
-    <script>
-      // Apply the saved theme before first paint to avoid a flash.
-      (function () {
-        try {
-          var t = localStorage.getItem("nexid.theme") || "system";
-          var dark = t === "dark" || (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
-          if (dark) document.documentElement.classList.add("dark");
-        } catch (e) {}
-      })();
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Nexid</title>
+        <meta
+            name="description"
+            content="Notes, tasks, diagrams, and collaboration in one workspace."
+        />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://nexid-nine.vercel.app/" />
+        <meta
+            property="og:title"
+            content="Nexid — Notes, Tasks & Collaboration"
+        />
+        <meta
+            property="og:description"
+            content="Organize your notes, manage tasks, and collaborate on diagrams with Nexid."
+        />
+        <meta
+            property="og:image"
+            content="https://nexid-nine.vercel.app/Nexid-OG.png"
+        />
+        <meta property="og:image:alt" content="Nexid productivity workspace" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+            name="twitter:title"
+            content="Nexid — Notes, Tasks & Collaboration"
+        />
+        <meta
+            name="twitter:description"
+            content="Organize your notes, manage tasks, and collaborate on diagrams with Nexid."
+        />
+        <meta
+            name="twitter:image"
+            content="https://nexid-nine.vercel.app/Nexid-OG.png"
+        />
+        <script>
+            // Apply the saved theme before first paint to avoid a flash.
+            (function () {
+                try {
+                    var t = localStorage.getItem("nexid.theme") || "system";
+                    var dark =
+                        t === "dark" ||
+                        (t === "system" &&
+                            matchMedia("(prefers-color-scheme: dark)").matches);
+                    if (dark) document.documentElement.classList.add("dark");
+                } catch (e) {}
+            })();
+        </script>
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="module" src="/src/main.jsx"></script>
+    </body>
 </html>
